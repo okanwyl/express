@@ -1,6 +1,9 @@
 package com.obss.okan.express.domain.project;
 
+import com.obss.okan.express.domain.project.task.Task;
 import com.obss.okan.express.domain.user.User;
+import com.obss.okan.express.domain.user.UserType;
+import org.aspectj.bridge.ICommand;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -9,6 +12,7 @@ import javax.persistence.*;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,109 +41,103 @@ public class Project {
     @LastModifiedDate
     private Instant updatedAt;
 
-    @Column(name = "ends_at")
-    private Instant endsAt;
 
-    @Embedded
-    private ProjectProfile projectProfile;
-
-    @JoinTable(name = "users_attended",
-            joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
+    @JoinTable(name = "users_attended", joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false), inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
     @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
     private Set<User> userAttended = new HashSet<>();
 
-//    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-//    private Set<Task> tasks = new HashSet<>();
+    @JoinTable(name = "project_managers_attended", joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false), inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
+    @ManyToMany
+    private Set<User> projectManagers = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Set<Task> tasks = new HashSet<>();
 
     @Transient
     private boolean active = false;
 
-    public Project(User creator, ProjectContents contents){
+    public Project(User creator, ProjectContents contents) {
         this.creator = creator;
         this.contents = contents;
     }
 
-    public long getId() {
-        return id;
+    protected Project() {
+
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public Project addUserByMasterUser(User user, User masterUser) {
+        if (!masterUser.getType().equals(UserType.PROJECT_MANAGER) ||
+                !projectManagers.contains(masterUser)) {
+            throw new IllegalAccessError("Not authorized to add user");
+        }
+        userAttended.add(user);
+        return this;
+    }
+
+    public void removeUserByMasterUser(User masterUser, long userId) {
+        if (!masterUser.getType().equals(UserType.PROJECT_MANAGER) ||
+                !projectManagers.contains(masterUser)) {
+            throw new IllegalAccessError("Not authorized to remove user");
+        }
+        final var userToDelete = userAttended.stream()
+                .filter(streamUser -> streamUser.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(NoSuchElementException::new);
+        userAttended.remove(userToDelete);
+    }
+
+    public void updateProject(ProjectUpdateRequest updateRequest) {
+        contents.updateProjectContentsIfPresent(updateRequest);
     }
 
     public User getCreator() {
         return creator;
     }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
 
-    public ProjectContents getContent() {
+    public ProjectContents getContents() {
         return contents;
-    }
-
-    public void setContent(ProjectContents contents) {
-        this.contents = contents;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public int getAttendedCount() {
+        return userAttended.size();
     }
 
-    public Instant getEndsAt() {
-        return endsAt;
+    public int getProjectManagerSize() {
+        return projectManagers.size();
     }
 
-    public void setEndsAt(Instant endsAt) {
-        this.endsAt = endsAt;
-    }
-
-    public ProjectProfile getProjectProfile() {
-        return projectProfile;
-    }
-
-    public void setProjectProfile(ProjectProfile projectProfile) {
-        this.projectProfile = projectProfile;
-    }
-
-    public Set<User> getUserAttended() {
+    public Set<User> getAttenders() {
         return userAttended;
     }
 
-    public void setUserAttended(Set<User> userAttended) {
-        this.userAttended = userAttended;
+
+    public Set<User> getProjectManagers() {
+        return projectManagers;
     }
 
-    public boolean isActive() {
-        return active;
+    public Set<Task> getTasks() {
+        return tasks;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public int getTaskCount() {
+        return tasks.size();
     }
 
-    protected Project(){
-
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var project= (Project) o;
+        var project = (Project) o;
         return creator.equals(project.creator) && contents.getTitle().equals(project.contents.getTitle());
     }
 
@@ -147,5 +145,4 @@ public class Project {
     public int hashCode() {
         return Objects.hash(creator, contents.getTitle());
     }
-
 }

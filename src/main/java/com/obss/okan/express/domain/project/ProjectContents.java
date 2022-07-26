@@ -2,7 +2,10 @@ package com.obss.okan.express.domain.project;
 
 //import org.springframework.scheduling.config.Task;
 
+import com.obss.okan.express.domain.project.task.Task;
+
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,26 +20,21 @@ public class ProjectContents {
     @Column(nullable = false)
     private String body;
 
-    @JoinTable(name = "project_tasks",
-            joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id", nullable = false))
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Set<Task> tasks = new HashSet<>();
+    @Column(nullable = true)
+    private Instant endDate;
 
-    public ProjectContents(String description, ProjectTitle title, String body, Set<Task> tasks) {
+
+    public ProjectContents(String description, ProjectTitle title, String body, Instant endDate) {
         this.description = description;
         this.title = title;
         this.body = body;
-        this.tasks = tasks;
+        this.endDate = endDate;
     }
 
     protected ProjectContents() {
 
     }
 
-    public void setTasks(Set<Task> tasks) {
-        this.tasks = tasks;
-    }
 
     public ProjectTitle getTitle() {
         return title;
@@ -50,13 +48,17 @@ public class ProjectContents {
         return body;
     }
 
-    public Set<Task> getTasks() {
-        return tasks;
+    public Instant getEndDate() {
+        return endDate;
     }
+
+    ;
+
 
     void updateProjectContentsIfPresent(ProjectUpdateRequest updateRequest) {
         updateRequest.getTitleToUpdate().ifPresent(titleToUpdate -> title = titleToUpdate);
         updateRequest.getDescriptionToUpdate().ifPresent(descriptionToUpdate -> description = descriptionToUpdate);
         updateRequest.getBodyToUpdate().ifPresent(bodyToUpdate -> body = bodyToUpdate);
+        updateRequest.getDateToUpdate().ifPresent(endDateToUpdate -> endDate = endDateToUpdate);
     }
 }

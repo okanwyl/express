@@ -1,11 +1,16 @@
 package com.obss.okan.express.domain.user;
 
+import com.obss.okan.express.domain.project.Project;
+import com.obss.okan.express.domain.project.ProjectContents;
+import com.obss.okan.express.domain.project.ProjectUpdateRequest;
+import com.obss.okan.express.domain.project.task.Task;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.persistence.CascadeType.REMOVE;
 
@@ -25,81 +30,56 @@ public class User {
     @Embedded
     private Password password;
 
+    private UserType type;
 
-    @JoinTable(name = "user_followings",
-            joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "followee_id", referencedColumnName = "id"))
-    @OneToMany(cascade = REMOVE)
-    private Set<User> followingUsers = new HashSet<>();
-//
-//    @ManyToMany(mappedBy = "userFavorited")
-//    private Set<Article> articleFavorited = new HashSet<>();
-    static User of(Email email, UserName name, Password password) {
-        return new User(email, new Profile(name), password);
+    static User of(Email email, UserName name, Password password, UserType type) {
+        return new User(email, new Profile(name), password, type);
     }
 
-    private User(Email email, Profile profile, Password password) {
+    private User(Email email, Profile profile, Password password, UserType type) {
         this.email = email;
         this.profile = profile;
         this.password = password;
+        this.type = type;
     }
 
     protected User() {
     }
-//    public Article writeArticle(ArticleContents contents) {
-//        return new Article(this, contents);
-//    }
-//
-//    public Article updateArticle(Article article, ArticleUpdateRequest request) {
-//        if (article.getAuthor() != this) {
-//            throw new IllegalAccessError("Not authorized to update this article");
-//        }
-//        article.updateArticle(request);
-//        return article;
-//    }
-//
-//    public Comment writeCommentToArticle(Article article, String body) {
-//        return article.addComment(this, body);
-//    }
-//
-//    public Article favoriteArticle(Article articleToFavorite) {
-//        articleFavorited.add(articleToFavorite);
-//        return articleToFavorite.afterUserFavoritesArticle(this);
-//    }
-//
-//    public Article unfavoriteArticle(Article articleToUnfavorite) {
-//        articleFavorited.remove(articleToUnfavorite);
-//        return articleToUnfavorite.afterUserUnFavoritesArticle(this);
-//    }
 
-    User followUser(User followee) {
-        followingUsers.add(followee);
-        return this;
+    public Project createProject(ProjectContents contents) {
+        return new Project(this, contents);
     }
 
-    User unfollowUser(User followee) {
-        followingUsers.remove(followee);
-        return this;
+    public Project updateProject(Project project, ProjectUpdateRequest request) {
+        if (project.getCreator() != this || this.type != UserType.SYSADMIN) {
+            throw new IllegalAccessError("Not authorized to update this article");
+        }
+        project.updateProject(request);
+        return project;
     }
 
-//    public void deleteArticleComment(Article article, long commentId) {
-//        article.removeCommentByUser(this, commentId);
-//    }
-//
-//    public Set<Comment> viewArticleComments(Article article) {
-//        return article.getComments().stream()
-//                .map(this::viewComment)
-//                .collect(toSet());
-//    }
-//
-//    Comment viewComment(Comment comment) {
-//        viewProfile(comment.getAuthor());
-//        return comment;
-//    }
-
-    Profile viewProfile(User user) {
-        return user.profile.withFollowing(followingUsers.contains(user));
+    public Task createTaskToProject(Project project, String body) {
+        return project.addTask(this, body);
     }
+
+
+    public void deleteProjectTask(Project project, long taskId) {
+        project.removeTaskByUser(this, taskId);
+    }
+
+    // @TODO
+    //
+    public Set<Task> viewProjectTasks(Project project) {
+        return project.getTasks().stream()
+                .map(this::viewTask)
+                .collect(Collectors.toSet());
+    }
+
+    Task viewTask(Task task) {
+        viewProfile(task.getCreator());
+        return task;
+    }
+
 
     public Profile getProfile() {
         return profile;
@@ -141,6 +121,10 @@ public class User {
         return profile.getUserName();
     }
 
+    public UserType getType() {
+        return type;
+    }
+
     String getBio() {
         return profile.getBio();
     }
@@ -160,5 +144,9 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+
+    Profile viewProfile(User user) {
+        return user.profile;
     }
 }

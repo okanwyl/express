@@ -1,5 +1,6 @@
 package com.obss.okan.express.domain.project;
 
+import com.obss.okan.express.domain.project.task.Task;
 import com.obss.okan.express.domain.user.User;
 import com.obss.okan.express.domain.user.UserName;
 import org.springframework.data.domain.Page;
@@ -12,10 +13,16 @@ interface ProjectRepository extends Repository<Project, Long> {
     Project save(Project project);
 
     Page<Project> findAll(Pageable pageable);
-    Page<Project> findAllByUserAttended(User user, Pageable pageable);
-    Page<Project> findAllByCreator(UserName creator, Pageable pageable);
-//    Page<Project> findAllByTask
-    Optional<Project> findFirstByContentTitleSlug(String title);
 
-    void deleteProjectByCreatorAndContentTitleAndSlug(User user, String title);
+    Page<Project> findAllByUserAttended(User user, Pageable pageable);
+
+    Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
+
+    Page<Project> findAllByTaskContains(Task task, Pageable pageable);
+
+//    Page<Project> findAllByUserAttended(User user, Pageable page);
+
+    Optional<Project> findFirstByContentsTitleSlug(String slug);
+
+    void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
 }

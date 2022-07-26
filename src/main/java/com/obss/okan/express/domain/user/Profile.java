@@ -16,10 +16,7 @@ public class Profile {
     @Embedded
     private Image image;
 
-    @Transient
-    private boolean following;
 
-    //changed last
     public Profile(UserName userName) {
         this(userName, null, null, false);
     }
@@ -28,7 +25,6 @@ public class Profile {
         this.userName = userName;
         this.bio = bio;
         this.image = image;
-        this.following = following;
     }
 
     protected Profile() {
@@ -46,14 +42,6 @@ public class Profile {
         return image;
     }
 
-    public boolean isFollowing() {
-        return following;
-    }
-
-    Profile withFollowing(boolean following) {
-        this.following = following;
-        return this;
-    }
 
     void changeUserName(UserName userName) {
         this.userName = userName;

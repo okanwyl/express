@@ -20,11 +20,12 @@ public class UserService implements UserFindService {
 
 
     @Transactional
-    public User signUp(UserSignUpRequest request) {
+    public User signUp(UserCreateRequest request) {
         final var encodedPassword = Password.of(request.getRawPassword(), passwordEncoder);
         return userRepository.save(User.of(request.getEmail(),
                 request.getUserName(),
-                encodedPassword));
+                encodedPassword,
+                UserType.DEVELOPER));
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +43,11 @@ public class UserService implements UserFindService {
     @Override
     public Optional<User> findByUsername(UserName userName) {
         return userRepository.findFirstByProfileUserName(userName);
+    }
+
+    @Override
+    public Optional<User> findByEmailUser(Email email){
+        return userRepository.findFirstByEmail(email);
     }
 
     @Transactional

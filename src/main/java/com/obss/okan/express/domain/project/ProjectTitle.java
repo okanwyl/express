@@ -11,7 +11,6 @@ public class ProjectTitle {
     @Column(nullable = false)
     private String title;
 
-    // error prone
     @Column(nullable = false)
     private String slug;
 
@@ -29,10 +28,13 @@ public class ProjectTitle {
     }
 
 
-    private static String slugFromTitle(String title) {
-        return title.toLowerCase(Locale.ROOT);
-    }
 
+    private static String slugFromTitle(String title) {
+        return title.toLowerCase()
+                .replaceAll("\\$,'\"|\\s|\\.|\\?", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("(^-)|(-$)", "");
+    }
     public String getSlug() {
         return slug;
     }
