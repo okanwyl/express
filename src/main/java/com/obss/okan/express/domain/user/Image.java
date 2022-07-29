@@ -7,31 +7,30 @@ import java.util.Objects;
 @Embeddable
 public class Image {
 
-    @Column(name = "image")
-    private String address;
+  @Column(name = "image")
+  private String address;
 
-    public Image(String address) {
-        this.address = address;
-    }
+  public Image(String address) {
+    this.address = address;
+  }
 
-    protected Image() {
-    }
+  protected Image() {}
 
-    @Override
-    public String toString() {
-        return address;
-    }
+  @Override
+  public String toString() {
+    return address;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final var image = (Image) o;
-        return address.equals(image.address);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    final var image = (Image) o;
+    return address.equals(image.address);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(address);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(address);
+  }
 }

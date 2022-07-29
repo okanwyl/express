@@ -3,55 +3,63 @@ package com.obss.okan.express.domain.user;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
-import javax.persistence.Transient;
 
 @Embeddable
 public class Profile {
-    @Embedded
-    private UserName userName;
 
-    @Column(name = "bio")
-    private String bio;
+  @Column(name = "name", nullable = false)
+  private String name;
 
-    @Embedded
-    private Image image;
+  @Column(name = "surname", nullable = false)
+  private String surname;
 
+  @Column(name = "bio")
+  private String bio;
 
-    public Profile(UserName userName) {
-        this(userName, null, null, false);
-    }
+  @Embedded private Image image;
 
-    private Profile(UserName userName, String bio, Image image, boolean following) {
-        this.userName = userName;
-        this.bio = bio;
-        this.image = image;
-    }
+  public Profile(String name, String surname) {
+    this(name, surname, null, null);
+  }
 
-    protected Profile() {
-    }
+  private Profile(String name, String surname, String bio, Image image) {
+    this.name = name;
+    this.surname = name;
+    this.bio = bio;
+    this.image = image;
+  }
 
-    public UserName getUserName() {
-        return userName;
-    }
+  protected Profile() {}
 
-    public String getBio() {
-        return bio;
-    }
+  public String getBio() {
+    return bio;
+  }
 
-    public Image getImage() {
-        return image;
-    }
+  public Image getImage() {
+    return image;
+  }
 
+  public String getName() {
+    return name;
+  }
 
-    void changeUserName(UserName userName) {
-        this.userName = userName;
-    }
+  public String getSurname() {
+    return surname;
+  }
 
-    void changeBio(String bio) {
-        this.bio = bio;
-    }
+  void changeBio(String bio) {
+    this.bio = bio;
+  }
 
-    void changeImage(Image image) {
-        this.image = image;
-    }
+  void changeImage(Image image) {
+    this.image = image;
+  }
+
+  void changeName(String name) {
+    this.name = name;
+  }
+
+  void changeSurname(String surname) {
+    this.surname = name;
+  }
 }

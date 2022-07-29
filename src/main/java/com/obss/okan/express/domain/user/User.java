@@ -7,146 +7,168 @@ import com.obss.okan.express.domain.project.task.Task;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static javax.persistence.CascadeType.REMOVE;
 
 @Table(name = "users")
 @Entity
 public class User {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    private long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  private long id;
 
-    @Embedded
-    private Email email;
+  @Embedded private Email email;
 
-    @Embedded
-    private Profile profile;
+  @Embedded private Profile profile;
 
-    @Embedded
-    private Password password;
+  @Embedded private Password password;
 
-    private UserType type;
+  @Column(name = "type")
+  private UserType type;
 
-    static User of(Email email, UserName name, Password password, UserType type) {
-        return new User(email, new Profile(name), password, type);
+  // @FIXME need to implemenet project sprint structure for database
+  // should be seperated from the the thing for the project
+
+  private User(Email email, Profile profile, Password password, UserType type) {
+    this.email = email;
+    this.profile = profile;
+    this.password = password;
+    this.type = type;
+  }
+
+  protected User() {}
+
+  static User of(Email email, String name, String surname, Password password, UserType type) {
+
+    return new User(email, new Profile(name, surname), password, type);
+  }
+
+  public Project createProject(ProjectContents contents) {
+    if (!checkUserPermission(this)) {
+      throw new IllegalAccessError("Not authorized access request!");
     }
+    return new Project(this, contents);
+  }
 
-    private User(Email email, Profile profile, Password password, UserType type) {
-        this.email = email;
-        this.profile = profile;
-        this.password = password;
-        this.type = type;
+  public Project updateProject(Project project, ProjectUpdateRequest request) {
+    if (!checkUserPermission(this)) {
+      throw new IllegalAccessError("Not authorized access request!");
     }
+    project.updateProject(this, request);
+    return project;
+  }
 
-    protected User() {
+  public Task createAndAddTaskToProject(Project project, String body) {
+    return project.addTask(this, body);
+  }
+
+  public void deleteTaskFromProject(Project project, long taskId) {
+    project.removeTask(this, taskId);
+  }
+
+  // @TODO need to add handler?
+  // public Set<Task> viewProjectTasks(Project project) {
+  //   return project.getTasks().stream().map(this::viewTask).collect(Collectors.toSet());
+  // }
+  //
+
+
+  public Project addUserToProject(Project project, User user) {
+    if (!checkUserPermission(this)) {
+      throw new IllegalAccessError("Not authorized access request!");
     }
+    return project.addUser(user);
+  }
 
-    public Project createProject(ProjectContents contents) {
-        return new Project(this, contents);
+  public void removeUserFromProject(Project project, long userId) {
+    if (!checkUserPermission(this)) {
+      throw new IllegalAccessError("Not authorized access request!");
     }
+    project.removeUser(userId);
+  }
 
-    public Project updateProject(Project project, ProjectUpdateRequest request) {
-        if (project.getCreator() != this || this.type != UserType.SYSADMIN) {
-            throw new IllegalAccessError("Not authorized to update this article");
-        }
-        project.updateProject(request);
-        return project;
-    }
+  public Profile getProfile() {
+    return profile;
+  }
 
-    public Task createTaskToProject(Project project, String body) {
-        return project.addTask(this, body);
-    }
+  boolean matchesPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+    return password.matchesPassword(rawPassword, passwordEncoder);
+  }
 
+  void changeEmail(Email email) {
+    this.email = email;
+  }
 
-    public void deleteProjectTask(Project project, long taskId) {
-        project.removeTaskByUser(this, taskId);
-    }
+  void changePassword(Password password) {
+    this.password = password;
+  }
 
-    // @TODO
-    //
-    public Set<Task> viewProjectTasks(Project project) {
-        return project.getTasks().stream()
-                .map(this::viewTask)
-                .collect(Collectors.toSet());
-    }
+  void changeName(String name) {
+    profile.changeName(name);
+  }
 
-    Task viewTask(Task task) {
-        viewProfile(task.getCreator());
-        return task;
-    }
+  void changeSurname(String surname) {
+    profile.changeSurname(surname);
+  }
 
+  void changeBio(String bio) {
+    profile.changeBio(bio);
+  }
 
-    public Profile getProfile() {
-        return profile;
-    }
+  void changeImage(Image image) {
+    profile.changeImage(image);
+  }
 
-    boolean matchesPassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        return password.matchesPassword(rawPassword, passwordEncoder);
-    }
+  public Long getId() {
+    return id;
+  }
 
-    void changeEmail(Email email) {
-        this.email = email;
-    }
+  public Email getEmail() {
+    return email;
+  }
 
-    void changePassword(Password password) {
-        this.password = password;
-    }
+  public String getName() {
+    return profile.getName();
+  }
 
-    void changeName(UserName userName) {
-        profile.changeUserName(userName);
-    }
+  public String getSurname() {
+    return profile.getSurname();
+  }
 
-    void changeBio(String bio) {
-        profile.changeBio(bio);
-    }
+  public UserType getType() {
+    return type;
+  }
 
-    void changeImage(Image image) {
-        profile.changeImage(image);
-    }
+  String getBio() {
+    return profile.getBio();
+  }
 
-    public Long getId() {
-        return id;
-    }
+  Image getImage() {
+    return profile.getImage();
+  }
 
-    public Email getEmail() {
-        return email;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    final var user = (User) o;
+    return email.equals(user.email);
+  }
 
-    public UserName getName() {
-        return profile.getUserName();
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(email);
+  }
 
-    public UserType getType() {
-        return type;
-    }
+  Profile viewProfile(User user) {
+    return user.profile;
+  }
 
-    String getBio() {
-        return profile.getBio();
-    }
-
-    Image getImage() {
-        return profile.getImage();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final var user = (User) o;
-        return email.equals(user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(email);
-    }
-
-    Profile viewProfile(User user) {
-        return user.profile;
-    }
+  private boolean checkUserPermission(User user) {
+    return user.getType().equals(UserType.PROJECT_MANAGER)
+        || user.getType().equals(UserType.SYSADMIN);
+  }
+  // @TODO
+  // Task viewTask(Task task){
+  //   task.getAssignedId?
+  // }
 }

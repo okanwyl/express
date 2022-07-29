@@ -2,27 +2,26 @@ package com.obss.okan.express.domain.project;
 
 import com.obss.okan.express.domain.project.task.Task;
 import com.obss.okan.express.domain.user.User;
-import com.obss.okan.express.domain.user.UserName;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.Repository;
 
 import java.awt.print.Pageable;
 import java.util.Optional;
-
+// @FIXME COMPLETELY
 interface ProjectRepository extends Repository<Project, Long> {
-    Project save(Project project);
+  Project save(Project project);
 
-    Page<Project> findAll(Pageable pageable);
+  Page<Project> findAll(Pageable pageable);
 
-    Page<Project> findAllByUserAttended(User user, Pageable pageable);
+  Page<Project> findAllByUserAttended(User user, Pageable pageable);
 
-    Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
+//  Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
 
-    Page<Project> findAllByTaskContains(Task task, Pageable pageable);
+  Page<Project> findAllByTaskContains(Task task, Pageable pageable);
 
-//    Page<Project> findAllByUserAttended(User user, Pageable page);
+  //    Page<Project> findAllByUserAttended(User user, Pageable page);
 
-    Optional<Project> findFirstByContentsTitleSlug(String slug);
+  Optional<Project> findFirstByContentsTitleSlug(String slug);
 
-    void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
+  void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
 }

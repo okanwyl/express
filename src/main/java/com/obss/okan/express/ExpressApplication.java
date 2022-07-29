@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication()
 public class ExpressApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ExpressApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(ExpressApplication.class, args);
+  }
 }

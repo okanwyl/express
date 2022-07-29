@@ -16,45 +16,45 @@ import java.util.List;
 import static org.springframework.http.HttpMethod.POST;
 
 @EnableConfigurationProperties(SecurityConfigurationProperties.class)
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter
+    implements WebMvcConfigurer {
+  private final SecurityConfigurationProperties properties;
 
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
-    private final SecurityConfigurationProperties properties;
+  SecurityConfiguration(SecurityConfigurationProperties properties) {
+    this.properties = properties;
+  }
 
-    SecurityConfiguration(SecurityConfigurationProperties properties) {
-        this.properties = properties;
-    }
+  @Override
+  public void configure(WebSecurity web) {
+    web.ignoring().antMatchers(POST, "/users", "/users/login");
+  }
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(POST, "/users", "/users/login");
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedMethods("GET", "HEAD", "POST", "DELETE", "PUT")
-                .allowedOrigins(properties.getAllowedOrigins().toArray(new String[0]))
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    registry
+        .addMapping("/**")
+        .allowedMethods("GET", "HEAD", "POST", "DELETE", "PUT")
+        .allowedOrigins(properties.getAllowedOrigins().toArray(new String[0]))
+        .allowedHeaders("*")
+        .allowCredentials(true);
+  }
 }
 
 @ConstructorBinding
 @ConfigurationProperties("security")
 class SecurityConfigurationProperties {
-    private final List<String> allowedOrigins;
+  private final List<String> allowedOrigins;
 
-    SecurityConfigurationProperties(List<String> allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
-    }
+  SecurityConfigurationProperties(List<String> allowedOrigins) {
+    this.allowedOrigins = allowedOrigins;
+  }
 
-    public List<String> getAllowedOrigins() {
-        return allowedOrigins;
-    }
+  public List<String> getAllowedOrigins() {
+    return allowedOrigins;
+  }
 }

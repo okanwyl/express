@@ -10,61 +10,44 @@ import java.util.Optional;
 @Service
 public class UserService implements UserFindService {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
 
-    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-    }
+  public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository) {
+    this.passwordEncoder = passwordEncoder;
+    this.userRepository = userRepository;
+  }
 
+  @Transactional(readOnly = true)
+  public Optional<User> login(Email email, String rawPassword) {
+    return userRepository
+        .findByEmail(email)
+        .filter(user -> user.matchesPassword(rawPassword, passwordEncoder));
+  }
 
-    @Transactional
-    public User signUp(UserCreateRequest request) {
-        final var encodedPassword = Password.of(request.getRawPassword(), passwordEncoder);
-        return userRepository.save(User.of(request.getEmail(),
-                request.getUserName(),
-                encodedPassword,
-                UserType.DEVELOPER));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<User> findById(long id) {
+    return userRepository.findById(id);
+  }
 
-    @Transactional(readOnly = true)
-    public Optional<User> login(Email email, String rawPassword) {
-        return userRepository.findFirstByEmail(email)
-                .filter(user -> user.matchesPassword(rawPassword, passwordEncoder));
-    }
+  @Override
+  public Optional<User> findByEmail(Email email) {
+    return userRepository.findByEmail(email);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<User> findById(long id) {
-        return userRepository.findById(id);
-    }
-
-    @Override
-    public Optional<User> findByUsername(UserName userName) {
-        return userRepository.findFirstByProfileUserName(userName);
-    }
-
-    @Override
-    public Optional<User> findByEmailUser(Email email){
-        return userRepository.findFirstByEmail(email);
-    }
-
-    @Transactional
-    public User updateUser(long id, UserUpdateRequest request) {
-        final var user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
-        request.getEmailToUpdate()
-                .ifPresent(user::changeEmail);
-        request.getUserNameToUpdate()
-                .ifPresent(user::changeName);
-        request.getPasswordToUpdate()
-                .map(rawPassword -> Password.of(rawPassword, passwordEncoder))
-                .ifPresent(user::changePassword);
-        request.getImageToUpdate()
-                .ifPresent(user::changeImage);
-        request.getBioToUpdate()
-                .ifPresent(user::changeBio);
-        return userRepository.save(user);
-    }
-
+  @Transactional
+  public User updateUser(long id, UserUpdateRequest request) {
+    final var user = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    request.getEmailToUpdate().ifPresent(user::changeEmail);
+    request.getNameToUpdate().ifPresent(user::changeName);
+    request.getSurnameToUpdate().ifPresent(user::changeSurname);
+    request
+        .getPasswordToUpdate()
+        .map(rawPassword -> Password.of(rawPassword, passwordEncoder))
+        .ifPresent(user::changePassword);
+    request.getImageToUpdate().ifPresent(user::changeImage);
+    request.getBioToUpdate().ifPresent(user::changeBio);
+    return userRepository.save(user);
+  }
 }

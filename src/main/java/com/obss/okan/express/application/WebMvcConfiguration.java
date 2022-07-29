@@ -7,11 +7,12 @@ import org.springframework.data.web.config.PageableHandlerMethodArgumentResolver
 @Configuration
 class WebMvcConfiguration {
 
-    @Bean
-    PageableHandlerMethodArgumentResolverCustomizer pageableHandlerMethodArgumentResolverCustomizer() {
-        return pageableResolver -> {
-            pageableResolver.setSizeParameterName("limit");
-            pageableResolver.setPageParameterName("offset");
-        };
-    }
+  @Bean
+  PageableHandlerMethodArgumentResolverCustomizer
+      pageableHandlerMethodArgumentResolverCustomizer() {
+    return pageableResolver -> {
+      pageableResolver.setSizeParameterName("limit");
+      pageableResolver.setPageParameterName("offset");
+    };
+  }
 }

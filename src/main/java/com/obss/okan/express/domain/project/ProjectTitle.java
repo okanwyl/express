@@ -2,57 +2,38 @@ package com.obss.okan.express.domain.project;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import java.util.Locale;
 import java.util.Objects;
 
 @Embeddable
 public class ProjectTitle {
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @Column(nullable = false)
-    private String slug;
+  private ProjectTitle(String title) {
+    this.title = title;
+  }
 
-    public static ProjectTitle of(String title) {
-        return new ProjectTitle(title, slugFromTitle(title));
-    }
+  protected ProjectTitle() {}
 
-    private ProjectTitle(String title, String slug) {
-        this.title = title;
-        this.slug = slug;
-    }
+  public static ProjectTitle of(String title) {
+    return new ProjectTitle(title);
+  }
 
-    protected ProjectTitle() {
+  public String getTitle() {
+    return title;
+  }
 
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ProjectTitle that = (ProjectTitle) o;
+    return title.equals(that.title);
+  }
 
-
-
-    private static String slugFromTitle(String title) {
-        return title.toLowerCase()
-                .replaceAll("\\$,'\"|\\s|\\.|\\?", "-")
-                .replaceAll("-{2,}", "-")
-                .replaceAll("(^-)|(-$)", "");
-    }
-    public String getSlug() {
-        return slug;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProjectTitle that = (ProjectTitle) o;
-        return slug.equals(that.slug);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(slug);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(title);
+  }
 }
