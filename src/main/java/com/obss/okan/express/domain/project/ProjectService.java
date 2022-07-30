@@ -3,6 +3,7 @@ package com.obss.okan.express.domain.project;
 import com.obss.okan.express.domain.user.User;
 import com.obss.okan.express.domain.user.UserFindService;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.print.Pageable;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 import static org.springframework.data.util.Optionals.mapIfAllPresent;
 
+@Service
 public class ProjectService implements ProjectFindService {
 
   private final UserFindService userFindService;
@@ -67,6 +69,11 @@ public class ProjectService implements ProjectFindService {
   @Override
   public Optional<Project> getProjectByTitle(String title) {
     return Optional.empty();
+  }
+
+  @Override
+  public Optional<Project> getProjectById(long projectId) {
+    return projectRepository.findProjectById(projectId);
   }
   // @TODO implement the task service with user project dependency
 }

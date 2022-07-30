@@ -7,21 +7,24 @@ import org.springframework.data.repository.Repository;
 
 import java.awt.print.Pageable;
 import java.util.Optional;
+
 // @FIXME COMPLETELY
 interface ProjectRepository extends Repository<Project, Long> {
-  Project save(Project project);
+    Project save(Project project);
 
-  Page<Project> findAll(Pageable pageable);
+    Page<Project> findAll(Pageable pageable);
 
-  Page<Project> findAllByUserAttended(User user, Pageable pageable);
+    Page<Project> findAllByUserAttended(User user, Pageable pageable);
 
 //  Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
 
-  Page<Project> findAllByTaskContains(Task task, Pageable pageable);
+    Page<Project> findAllByTaskContains(Task task, Pageable pageable);
 
-  //    Page<Project> findAllByUserAttended(User user, Pageable page);
+    Optional<Project> findProjectById(long projectId);
 
-  Optional<Project> findFirstByContentsTitleSlug(String slug);
+    //    Page<Project> findAllByUserAttended(User user, Pageable page);
 
-  void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
+    Optional<Project> findFirstByContentsTitleSlug(String slug);
+
+    void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
 }
