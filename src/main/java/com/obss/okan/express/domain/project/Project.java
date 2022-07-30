@@ -2,7 +2,6 @@ package com.obss.okan.express.domain.project;
 
 import com.obss.okan.express.domain.project.task.Task;
 import com.obss.okan.express.domain.user.User;
-import com.obss.okan.express.domain.user.UserType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,7 +28,8 @@ public class Project {
   @ManyToOne(fetch = EAGER)
   private User creator;
 
-  @Embedded private ProjectContents contents;
+  @Embedded
+  private ProjectContents contents;
 
   @Column(name = "created_at")
   @CreatedDate
@@ -40,19 +40,17 @@ public class Project {
   private Instant updatedAt;
 
   // @FIXME should be @Transient?
-  @Transient private final boolean active = false;
+  @Transient
+  private final boolean active = false;
 
-  @JoinTable(
-      name = "project_users",
+  @JoinTable(name = "project_users",
       joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false),
-      inverseJoinColumns =
-          @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
+      inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id",
+          nullable = false))
   @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
   private final Set<User> attendedUsers = new HashSet<>();
 
-  @OneToMany(
-      mappedBy = "project",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+  @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   private final Set<Task> tasks = new HashSet<>();
 
   public Project(User creator, ProjectContents contents) {
@@ -68,11 +66,8 @@ public class Project {
   }
 
   public void removeUser(long userId) {
-    final var userToDelete =
-        attendedUsers.stream()
-            .filter(user -> user.getId().equals(userId))
-            .findFirst()
-            .orElseThrow(NoSuchElementException::new);
+    final var userToDelete = attendedUsers.stream().filter(user -> user.getId().equals(userId))
+        .findFirst().orElseThrow(NoSuchElementException::new);
     attendedUsers.remove(userToDelete);
   }
 
@@ -81,7 +76,8 @@ public class Project {
   }
 
   public Task addTask(User user, String body) {
-    if (!checkUserAttendingStatus(user)) throw new IllegalAccessError("Not authorized request!");
+    if (!checkUserAttendingStatus(user))
+      throw new IllegalAccessError("Not authorized request!");
     final var taskToAdd = new Task(this, user, body);
     tasks.add(taskToAdd);
     return taskToAdd;
@@ -90,11 +86,8 @@ public class Project {
   public void removeTask(User user, long taskId) {
     if (!checkUserAttendingStatus(user))
       throw new IllegalAccessError("Not authorized request!");
-    final var taskToRemove =
-        tasks.stream()
-            .filter(task -> task.getId().equals(taskId))
-            .findFirst()
-            .orElseThrow(NoSuchElementException::new);
+    final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst()
+        .orElseThrow(NoSuchElementException::new);
     tasks.remove(taskToRemove);
   }
 
@@ -132,8 +125,10 @@ public class Project {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     var project = (Project) o;
     return creator.equals(project.creator)
         && contents.getTitle().equals(project.contents.getTitle());
