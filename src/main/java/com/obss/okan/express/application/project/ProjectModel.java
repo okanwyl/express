@@ -29,7 +29,7 @@ class ProjectModel {
         ZonedDateTime updatedAt;
         // boolean favorited;
         // int favoritesCount;
-        ProfileModel.ProfileModelNested author;
+//        ProfileModel.ProfileModelNested author;
 
         static ProjectModelNested fromProject(Project project) {
             final var contents = project.getContents();
@@ -38,8 +38,8 @@ class ProjectModel {
                     contents.getBody(),
                     // contents.getTags().stream().map(Tag::toString).collect(toSet()),
                     project.getCreatedAt().atZone(ZoneId.of("Europe/Istanbul")),
-                    project.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")),
-                    ProfileModel.ProfileModelNested.fromProfile(project.getCreator().getProfile()));
+                    project.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")));
+//                    ProfileModel.ProfileModelNested.fromProfile(project.getCreator().getProfile()));
         }
     }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.obss.okan.express.domain.user.Email;
 import com.obss.okan.express.domain.user.Image;
 import com.obss.okan.express.domain.user.UserUpdateRequest;
-
 import lombok.Value;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.WRAPPER_OBJECT;

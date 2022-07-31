@@ -7,20 +7,21 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 class Password {
-  @Column(name = "password", nullable = false)
-  private String encodedPassword;
+    @Column(name = "password", nullable = false)
+    private String encodedPassword;
 
-  private Password(String encodedPassword) {
-    this.encodedPassword = encodedPassword;
-  }
+    private Password(String encodedPassword) {
+        this.encodedPassword = encodedPassword;
+    }
 
-  protected Password() {}
+    protected Password() {
+    }
 
-  static Password of(String rawPassword, PasswordEncoder passwordEncoder) {
-    return new Password(passwordEncoder.encode(rawPassword));
-  }
+    static Password of(String rawPassword, PasswordEncoder passwordEncoder) {
+        return new Password(passwordEncoder.encode(rawPassword));
+    }
 
-  boolean matchesPassword(String rawPassword, PasswordEncoder passwordEncoder) {
-    return passwordEncoder.matches(rawPassword, encodedPassword);
-  }
+    boolean matchesPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
 }

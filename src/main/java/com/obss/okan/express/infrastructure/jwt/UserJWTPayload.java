@@ -11,16 +11,15 @@ public class UserJWTPayload implements JWTPayload {
     private final String name;
     private final long iat;
 
-    static UserJWTPayload of(User user, long epochSecondExpired) {
-        return new UserJWTPayload(user.getId(), valueOf(user.getEmail()), epochSecondExpired);
-    }
-
     UserJWTPayload(long sub, String name, long iat) {
         this.sub = sub;
         this.name = name;
         this.iat = iat;
     }
 
+    static UserJWTPayload of(User user, long epochSecondExpired) {
+        return new UserJWTPayload(user.getId(), valueOf(user.getEmail()), epochSecondExpired);
+    }
 
     @Override
     public long getUserId() {

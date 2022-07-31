@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-
 import static com.obss.okan.express.application.user.UserModel.fromUserAndToken;
 import static org.springframework.http.ResponseEntity.of;
 
@@ -23,6 +22,10 @@ class UserRestController {
     UserRestController(UserService userService, JWTSerializer jwtSerializer) {
         this.userService = userService;
         this.jwtSerializer = jwtSerializer;
+    }
+
+    private static String getCurrentCredential() {
+        return SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
     }
 
     @PostMapping("/users/login")
@@ -40,14 +43,9 @@ class UserRestController {
 
     @PutMapping("/user")
     public UserModel putUser(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-            @Valid @RequestBody UserPutRequestDTO dto) {
+                             @Valid @RequestBody UserPutRequestDTO dto) {
         final var userUpdated =
                 userService.updateUser(jwtPayload.getUserId(), dto.toUpdateRequest());
         return fromUserAndToken(userUpdated, getCurrentCredential());
-    }
-
-
-    private static String getCurrentCredential() {
-        return SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
     }
 }

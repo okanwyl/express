@@ -3,6 +3,7 @@ package com.obss.okan.express.domain.user;
 import com.obss.okan.express.domain.project.Project;
 import com.obss.okan.express.domain.project.ProjectContents;
 import com.obss.okan.express.domain.project.ProjectUpdateRequest;
+import com.obss.okan.express.domain.project.sprint.Sprint;
 import com.obss.okan.express.domain.project.task.Task;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,8 +29,6 @@ public class User {
     @Column(name = "type")
     private UserType type;
 
-    // @FIXME need to implemenet project sprint structure for database
-    // should be seperated from the the thing for the project
 
     private User(Email email, Profile profile, Password password, UserType type) {
         this.email = email;
@@ -38,18 +37,22 @@ public class User {
         this.type = type;
     }
 
-    protected User() {}
+    protected User() {
+    }
 
-    static User of(Email email, String name, String surname, Password password, UserType type) {
+    static User of(Email email, String name, String surname ,Password password, UserType type) {
+        return new User(email, new Profile(name, surname) ,password, type);
+    }
 
-        return new User(email, new Profile(name, surname), password, type);
+    public void setType(UserType type) {
+        this.type = type;
     }
 
     public Project createProject(ProjectContents contents) {
         if (!checkUserPermission(this)) {
             throw new IllegalAccessError("Not authorized access request!");
         }
-        return new Project(this, contents);
+        return new Project(contents);
     }
 
     public Project updateProject(Project project, ProjectUpdateRequest request) {
@@ -82,6 +85,30 @@ public class User {
         }
         project.removeUser(userId);
     }
+
+//    public Sprint createAndAddSprintToProject(Project project, String body) {
+//        if (!checkUserPermission(this)) {
+//            throw new IllegalAccessError("Not authorized access request!");
+//        }
+//        return project.createSprint(body);
+//    }
+//
+//    public void addTaskToSprint(Project project, long sprintId, long taskId) {
+//        if (!checkUserPermission(this)) {
+//            throw new IllegalAccessError("Not authorized access request!");
+//        }
+//        project.addTaskToSprint(taskId, sprintId);
+//
+//    }
+
+//    public void removeTaskFromSprint(Project project, long sprintId, long taskId) {
+//        if (!checkUserPermission(this)) {
+//            throw new IllegalAccessError("Not authorized access request!");
+//        }
+//        project.addTaskToSprint(taskId, sprintId);
+//
+//    }
+
 
     public Profile getProfile() {
         return profile;
@@ -145,10 +172,12 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         final var user = (User) o;
         return email.equals(user.email);
     }
@@ -163,7 +192,6 @@ public class User {
     }
 
     private boolean checkUserPermission(User user) {
-        return user.getType().equals(UserType.PROJECT_MANAGER)
-                || user.getType().equals(UserType.SYSADMIN);
+        return user.getType().equals(UserType.PROJECT_MANAGER) || user.getType().equals(UserType.SYSADMIN);
     }
 }

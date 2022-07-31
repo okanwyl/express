@@ -14,77 +14,79 @@ import java.util.Objects;
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class Task {
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Id
-  private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private Long id;
 
-  @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
-  @ManyToOne(fetch = FetchType.EAGER)
-  private Project project;
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Project project;
 
-  @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
-  @ManyToOne(fetch = FetchType.EAGER)
-  private User creator;
+    @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User creator;
 
-  @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
-  @ManyToOne(fetch = FetchType.EAGER)
-  private User assignedToUser;
+    @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User assignedToUser;
 
-  @Column(name = "created_at")
-  @CreatedDate
-  private Instant createdAt;
+    @Column(name = "created_at")
+    @CreatedDate
+    private Instant createdAt;
 
-  @Column(name = "updated_at")
-  @LastModifiedDate
-  private Instant updatedAt;
+    @Column(name = "updated_at")
+    @LastModifiedDate
+    private Instant updatedAt;
 
-  @Column(name = "body", nullable = false)
-  private String body;
+    @Column(name = "body", nullable = false)
+    private String body;
 
-  public Task(Project project, User creator, String body) {
-    this.project = project;
-    this.creator = creator;
-    this.body = body;
-  }
-  protected Task() {}
+    public Task(Project project, User creator, String body) {
+        this.project = project;
+        this.creator = creator;
+        this.body = body;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    protected Task() {
+    }
 
-  public User getCreator() {
-    return creator;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
+    public User getCreator() {
+        return creator;
+    }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-  public String getBody() {
-    return body;
-  }
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public User getAssignedToUser() {
-    return assignedToUser;
-  }
+    public String getBody() {
+        return body;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    var task = (Task) o;
-    return project.equals(task.project)
-        && creator.equals(task.creator)
-        && Objects.equals(createdAt, task.createdAt)
-        && body.equals(task.body);
-  }
+    public User getAssignedToUser() {
+        return assignedToUser;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(project, creator, createdAt, body);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        var task = (Task) o;
+        return project.equals(task.project)
+                && creator.equals(task.creator)
+                && Objects.equals(createdAt, task.createdAt)
+                && body.equals(task.body);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(project, creator, createdAt, body);
+    }
 }

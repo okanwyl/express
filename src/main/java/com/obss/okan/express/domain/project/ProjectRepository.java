@@ -12,19 +12,18 @@ import java.util.Optional;
 interface ProjectRepository extends Repository<Project, Long> {
     Project save(Project project);
 
-    Page<Project> findAll(Pageable pageable);
+//    Optional<Project> findAll();
 
-    Page<Project> findAllByUserAttended(User user, Pageable pageable);
+//    Page<Project> findAllByUserAttended(User user, Pageable pageable);
 
-//  Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
+//    Page<Project> findAllByCreator(UserName creatorName, Pageable pageable);
 
-    Page<Project> findAllByTaskContains(Task task, Pageable pageable);
+//    Page<Project> findAllByTaskContains(Task task, Pageable pageable);
 
     Optional<Project> findProjectById(long projectId);
 
-    //    Page<Project> findAllByUserAttended(User user, Pageable page);
+//    Page<Project> findAllByUserAttended(User user, Pageable page);
 
-    Optional<Project> findFirstByContentsTitleSlug(String slug);
+//    Optional<Project> findFirstByContentsTitleSlug(String slug);
 
-    void deleteProjectByCreatorAndContentsTitleSlug(User author, String slug);
 }
