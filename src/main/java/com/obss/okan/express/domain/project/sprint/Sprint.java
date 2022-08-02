@@ -31,9 +31,17 @@ public class Sprint {
     @CreatedDate
     private Instant createdAt;
 
+
+    @Column(name = "modified_at")
+    @LastModifiedDate
+    private Instant modifiedAt;
+
+    @Column(name = "ends_at")
+    @Date
+    private Instant endsAt;
+
     @Column(name = "body", nullable = false)
     private String body;
-
 
     @Transient
     private final boolean active = false;
@@ -63,12 +71,19 @@ public class Sprint {
         return createdAt;
     }
 
+    public Instant getEndsAt() {
+        return endsAt;
+    }
+
+
     public String getBody() {
         return body;
     }
 
-    public void addTask(Task task) {
-        tasks.add(task);
+    public void addTask(long taskId) {
+        final var taskToAdd = project.getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst()
+                .orElseThrow(NoSuchElementException::new);
+        tasks.add(taskToAdd);
     }
 
     public void removeTask(long taskId) {
