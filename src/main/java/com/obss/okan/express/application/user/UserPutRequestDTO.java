@@ -24,6 +24,10 @@ class UserPutRequestDTO {
     String image;
 
     UserUpdateRequest toUpdateRequest() {
-        return UserUpdateRequest.builder().emailToUpdate(ofNullable(email).map(Email::new).orElse(null)).nameToUpdate(name).surnameToUpdate(surname).imageToUpdate(ofNullable(image).map(Image::new).orElse(null)).passwordToUpdate(password).bioToUpdate(bio).build();
+        return UserUpdateRequest.builder()
+                .emailToUpdate(ofNullable(email).map(Email::new).orElse(null)).nameToUpdate(name)
+                .surnameToUpdate(surname)
+                .imageToUpdate(ofNullable(image).map(Image::new).orElse(null))
+                .passwordToUpdate(password).bioToUpdate(bio).build();
     }
 }

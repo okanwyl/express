@@ -20,13 +20,11 @@ public class ProfileModel {
     public static class ProfileModelNested {
         String name;
         String surname;
-        // String email;
         String bio;
         String image;
 
         public static ProfileModelNested fromProfile(Profile profile) {
             return new ProfileModelNested(profile.getName(), profile.getSurname(),
-                    // profile.getEmail(),
                     profile.getBio(), valueOf(profile.getImage()));
 
         }

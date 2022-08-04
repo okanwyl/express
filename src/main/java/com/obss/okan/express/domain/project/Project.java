@@ -28,8 +28,10 @@ public class Project {
     private final boolean active = false;
 
     @JoinTable(name = "project_users",
-            joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false))
+            joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id",
+                    nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id",
+                    nullable = false))
     @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
     private final Set<User> attendedUsers = new HashSet<>();
 
@@ -37,8 +39,8 @@ public class Project {
     private final Set<Task> tasks = new HashSet<>();
 
     // @FIMXE should we implement as a queue?
-//    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-//    private final Set<Sprint> sprints = new HashSet<>();
+    // @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    // private final Set<Sprint> sprints = new HashSet<>();
 
 
     @Embedded
@@ -56,8 +58,7 @@ public class Project {
         this.contents = contents;
     }
 
-    protected Project() {
-    }
+    protected Project() {}
 
     public Project addUser(User userToAdd) {
         attendedUsers.add(userToAdd);
@@ -85,34 +86,34 @@ public class Project {
     public void removeTask(User user, long taskId) {
         if (!checkUserAttendingStatus(user))
             throw new IllegalAccessError("Not authorized request!");
-        final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst()
-                .orElseThrow(NoSuchElementException::new);
+        final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId))
+                .findFirst().orElseThrow(NoSuchElementException::new);
         tasks.remove(taskToRemove);
     }
-//
-//    public Sprint createSprint(String body) {
-//        final var sprintToAdd = new Sprint(this, body);
-//        sprints.add(sprintToAdd);
-//        return sprintToAdd;
-//    }
-//
-//    public void addTaskToSprint(long taskId, long sprintId) {
-//        final var taskToAdd = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst()
-//                .orElseThrow(NoSuchElementException::new);
-//        final var usedSprint = sprints.stream()
-//                .filter(sprint -> sprint.getId().equals(sprintId)).findFirst()
-//                .orElseThrow(NoSuchElementException::new);
-//        usedSprint.addTask(taskToAdd);
-//
-//    }
-//
-//    public void removeTaskFromSprint(long taskId, long sprintId) {
-//        final var usedSprint = sprints.stream()
-//                .filter(sprint -> sprint.getId().equals(sprintId)).findFirst()
-//                .orElseThrow(NoSuchElementException::new);
-//        usedSprint.removeTask(taskId);
-//
-//    }
+    //
+    // public Sprint createSprint(String body) {
+    // final var sprintToAdd = new Sprint(this, body);
+    // sprints.add(sprintToAdd);
+    // return sprintToAdd;
+    // }
+    //
+    // public void addTaskToSprint(long taskId, long sprintId) {
+    // final var taskToAdd = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst()
+    // .orElseThrow(NoSuchElementException::new);
+    // final var usedSprint = sprints.stream()
+    // .filter(sprint -> sprint.getId().equals(sprintId)).findFirst()
+    // .orElseThrow(NoSuchElementException::new);
+    // usedSprint.addTask(taskToAdd);
+    //
+    // }
+    //
+    // public void removeTaskFromSprint(long taskId, long sprintId) {
+    // final var usedSprint = sprints.stream()
+    // .filter(sprint -> sprint.getId().equals(sprintId)).findFirst()
+    // .orElseThrow(NoSuchElementException::new);
+    // usedSprint.removeTask(taskId);
+    //
+    // }
 
 
     public ProjectContents getContents() {

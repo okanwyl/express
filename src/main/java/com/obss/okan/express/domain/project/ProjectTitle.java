@@ -14,8 +14,7 @@ public class ProjectTitle {
         this.title = title;
     }
 
-    protected ProjectTitle() {
-    }
+    protected ProjectTitle() {}
 
     public static ProjectTitle of(String title) {
         return new ProjectTitle(title);
@@ -27,8 +26,10 @@ public class ProjectTitle {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ProjectTitle that = (ProjectTitle) o;
         return title.equals(that.title);
     }

@@ -5,6 +5,7 @@ import com.obss.okan.express.domain.user.User;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.time.Instant.now;
 
 public class UserJWTPayload implements JWTPayload {
     private final long sub;
@@ -23,14 +24,13 @@ public class UserJWTPayload implements JWTPayload {
 
     @Override
     public long getUserId() {
-        return 0;
+        return sub;
     }
 
     @Override
     public boolean isExpired() {
-        return false;
+        return iat < now().getEpochSecond();
     }
-
     @Override
     public String toString() {
         return format("{\"sub\":%d,\"name\":\"%s\",\"iat\":%d}", sub, name, iat);

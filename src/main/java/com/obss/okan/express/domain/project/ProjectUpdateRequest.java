@@ -12,18 +12,12 @@ public class ProjectUpdateRequest {
     private final Instant dateToUpdate;
 
     private ProjectUpdateRequest(ProjectUpdateRequestBuilder builder) {
-        this(
-                builder.titleToUpdate,
-                builder.descriptionToUpdate,
-                builder.bodyToUpdate,
+        this(builder.titleToUpdate, builder.descriptionToUpdate, builder.bodyToUpdate,
                 builder.dateToUpdate);
     }
 
-    private ProjectUpdateRequest(
-            ProjectTitle titleToUpdate,
-            String descriptionToUpdate,
-            String bodyToUpdate,
-            Instant dateToUpdate) {
+    private ProjectUpdateRequest(ProjectTitle titleToUpdate, String descriptionToUpdate,
+            String bodyToUpdate, Instant dateToUpdate) {
         this.titleToUpdate = titleToUpdate;
         this.descriptionToUpdate = descriptionToUpdate;
         this.bodyToUpdate = bodyToUpdate;

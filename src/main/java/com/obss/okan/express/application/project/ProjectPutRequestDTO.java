@@ -23,9 +23,7 @@ class ProjectPutRequestDTO {
     // @FIXME DATE UPDATE
     ProjectUpdateRequest toUpdateRequest() {
         return builder().titleToUpdate(ofNullable(title).map(ProjectTitle::of).orElse(null))
-                .descriptionToUpdate(description)
-                .bodyToUpdate(body)
-                .build();
+                .descriptionToUpdate(description).bodyToUpdate(body).build();
     }
 
 }

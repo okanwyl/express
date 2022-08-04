@@ -9,5 +9,5 @@ interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findById(long id);
 
-    Optional<User> findByEmail(Email email);
+    Optional<User> findByProfileEmail(Email email);
 }

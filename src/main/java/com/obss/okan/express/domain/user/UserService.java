@@ -18,9 +18,16 @@ public class UserService implements UserFindService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
+    public User createUser(CreateUserRequest request) {
+        final var encodedPassword = Password.of(request.getRawPassword(), passwordEncoder);
+        return userRepository
+                .save(User.of(request.getEmail(), encodedPassword, request.getUserType()));
+    }
+
     @Transactional(readOnly = true)
     public Optional<User> login(Email email, String rawPassword) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByProfileEmail(email)
                 .filter(user -> user.matchesPassword(rawPassword, passwordEncoder));
     }
 
@@ -32,14 +39,9 @@ public class UserService implements UserFindService {
 
     @Override
     public Optional<User> findByEmail(Email email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByProfileEmail(email);
     }
 
-    @Transactional
-    public User createUser(CreateUserRequest request) {
-        final var encodedPassword = Password.of(request.getRawPassword(), passwordEncoder);
-        return userRepository.save(User.of(request.getEmail(), request.getName(), request.getSurname(), encodedPassword, null));
-    }
 
     @Transactional
     public User updateUser(long id, UserUpdateRequest request) {

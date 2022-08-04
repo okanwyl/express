@@ -22,7 +22,8 @@ import static org.springframework.http.HttpMethod.POST;
 
 @EnableConfigurationProperties(SecurityConfigurationProperties.class)
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter
+        implements WebMvcConfigurer {
 
     private final SecurityConfigurationProperties properties;
 
@@ -41,12 +42,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         http.cors();
         http.formLogin().disable();
         http.logout().disable();
-        http.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.authorizeRequests()
-                .antMatchers(GET, "/profiles/*").permitAll()
-                .antMatchers(GET, "/articles/**").permitAll()
-                .antMatchers(GET, "/tags/**").permitAll()
-                .anyRequest().authenticated();
+        http.addFilterBefore(new JWTAuthenticationFilter(),
+                UsernamePasswordAuthenticationFilter.class);
+        http.authorizeRequests().antMatchers(GET, "/profiles/*").permitAll()
+                .antMatchers(GET, "/articles/**").permitAll().antMatchers(GET, "/tags/**")
+                .permitAll().anyRequest().authenticated();
     }
 
     @Bean
@@ -61,13 +61,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedMethods("GET", "HEAD", "POST", "DELETE", "PUT")
+        registry.addMapping("/**").allowedMethods("GET", "HEAD", "POST", "DELETE", "PUT")
                 .allowedOrigins(properties.getAllowedOrigins().toArray(new String[0]))
-                .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowedHeaders("*").allowCredentials(true);
     }
 }
+
 
 @ConstructorBinding
 @ConfigurationProperties("security")

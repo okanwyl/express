@@ -43,9 +43,15 @@ class UserRestController {
 
     @PutMapping("/user")
     public UserModel putUser(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-                             @Valid @RequestBody UserPutRequestDTO dto) {
+            @Valid @RequestBody UserPutRequestDTO dto) {
         final var userUpdated =
                 userService.updateUser(jwtPayload.getUserId(), dto.toUpdateRequest());
         return fromUserAndToken(userUpdated, getCurrentCredential());
+    }
+
+    @PostMapping("/users")
+    public UserModel postUser(@Valid @RequestBody UserPostRequestDTO dto) {
+        final var userSaved = userService.createUser(dto.toSignUpRequest());
+        return fromUserAndToken(userSaved, jwtSerializer.jwtFromUser(userSaved));
     }
 }

@@ -47,8 +47,7 @@ public class Task {
         this.body = body;
     }
 
-    protected Task() {
-    }
+    protected Task() {}
 
     public Long getId() {
         return id;
@@ -76,13 +75,13 @@ public class Task {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         var task = (Task) o;
-        return project.equals(task.project)
-                && creator.equals(task.creator)
-                && Objects.equals(createdAt, task.createdAt)
-                && body.equals(task.body);
+        return project.equals(task.project) && creator.equals(task.creator)
+                && Objects.equals(createdAt, task.createdAt) && body.equals(task.body);
     }
 
     @Override

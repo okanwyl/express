@@ -14,8 +14,7 @@ public class Image {
         this.address = address;
     }
 
-    protected Image() {
-    }
+    protected Image() {}
 
     @Override
     public String toString() {

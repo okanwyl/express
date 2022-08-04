@@ -32,13 +32,13 @@ public class Sprint {
     private Instant createdAt;
 
 
-    @Column(name = "modified_at")
-    @LastModifiedDate
-    private Instant modifiedAt;
+    // @Column(name = "modified_at")
+    // @LastModifiedDate
+    // private Instant modifiedAt;
 
-    @Column(name = "ends_at")
-    @Date
-    private Instant endsAt;
+    // @Column(name = "ends_at")
+    // @Date
+    // private Instant endsAt;
 
     @Column(name = "body", nullable = false)
     private String body;
@@ -71,9 +71,9 @@ public class Sprint {
         return createdAt;
     }
 
-    public Instant getEndsAt() {
-        return endsAt;
-    }
+    // public Instant getEndsAt() {
+    // return endsAt;
+    // }
 
 
     public String getBody() {
@@ -81,25 +81,27 @@ public class Sprint {
     }
 
     public void addTask(long taskId) {
-        final var taskToAdd = project.getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst()
-                .orElseThrow(NoSuchElementException::new);
+        final var taskToAdd =
+                project.getTasks().stream().filter(task -> task.getId().equals(taskId)).findFirst()
+                        .orElseThrow(NoSuchElementException::new);
         tasks.add(taskToAdd);
     }
 
     public void removeTask(long taskId) {
-        final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst()
-                .orElseThrow(NoSuchElementException::new);
+        final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId))
+                .findFirst().orElseThrow(NoSuchElementException::new);
         tasks.remove(taskToRemove);
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         var sprint = (Sprint) o;
-        return project.equals(sprint.project)
-                && body.equals(sprint.body)
+        return project.equals(sprint.project) && body.equals(sprint.body)
                 && Objects.equals(createdAt, sprint.createdAt);
     }
 

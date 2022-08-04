@@ -15,9 +15,11 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public Profile viewProfile(Email email) {
-        return userFindService
-                .findByEmail(email)
-                .map(User::getProfile)
-                .orElseThrow(NoSuchElementException::new);
+        return userFindService.findByEmail(email).map(User::getProfile).orElseThrow(NoSuchElementException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Profile viewProfile(long userId) {
+        return userFindService.findById(userId).map(User::getProfile).orElseThrow(NoSuchElementException::new);
     }
 }

@@ -18,9 +18,6 @@ public class User {
     private long id;
 
     @Embedded
-    private Email email;
-
-    @Embedded
     private Profile profile;
 
     @Embedded
@@ -29,20 +26,18 @@ public class User {
     @Column(name = "type")
     private UserType type;
 
+    static User of(Email address, Password password, UserType type) {
+        return new User(new Profile(address), password, type);
+    }
 
-    private User(Email email, Profile profile, Password password, UserType type) {
-        this.email = email;
+    private User(Profile profile, Password password, UserType type) {
         this.profile = profile;
         this.password = password;
         this.type = type;
     }
 
-    protected User() {
-    }
+    protected User() {}
 
-    static User of(Email email, String name, String surname ,Password password, UserType type) {
-        return new User(email, new Profile(name, surname) ,password, type);
-    }
 
     public void setType(UserType type) {
         this.type = type;
@@ -86,28 +81,28 @@ public class User {
         project.removeUser(userId);
     }
 
-//    public Sprint createAndAddSprintToProject(Project project, String body) {
-//        if (!checkUserPermission(this)) {
-//            throw new IllegalAccessError("Not authorized access request!");
-//        }
-//        return project.createSprint(body);
-//    }
-//
-//    public void addTaskToSprint(Project project, long sprintId, long taskId) {
-//        if (!checkUserPermission(this)) {
-//            throw new IllegalAccessError("Not authorized access request!");
-//        }
-//        project.addTaskToSprint(taskId, sprintId);
-//
-//    }
+    // public Sprint createAndAddSprintToProject(Project project, String body) {
+    // if (!checkUserPermission(this)) {
+    // throw new IllegalAccessError("Not authorized access request!");
+    // }
+    // return project.createSprint(body);
+    // }
+    //
+    // public void addTaskToSprint(Project project, long sprintId, long taskId) {
+    // if (!checkUserPermission(this)) {
+    // throw new IllegalAccessError("Not authorized access request!");
+    // }
+    // project.addTaskToSprint(taskId, sprintId);
+    //
+    // }
 
-//    public void removeTaskFromSprint(Project project, long sprintId, long taskId) {
-//        if (!checkUserPermission(this)) {
-//            throw new IllegalAccessError("Not authorized access request!");
-//        }
-//        project.addTaskToSprint(taskId, sprintId);
-//
-//    }
+    // public void removeTaskFromSprint(Project project, long sprintId, long taskId) {
+    // if (!checkUserPermission(this)) {
+    // throw new IllegalAccessError("Not authorized access request!");
+    // }
+    // project.addTaskToSprint(taskId, sprintId);
+    //
+    // }
 
 
     public Profile getProfile() {
@@ -119,7 +114,7 @@ public class User {
     }
 
     void changeEmail(Email email) {
-        this.email = email;
+        this.profile.changeEmail(email);
     }
 
     void changePassword(Password password) {
@@ -147,7 +142,7 @@ public class User {
     }
 
     public Email getEmail() {
-        return email;
+        return profile.getEmail();
     }
 
     public String getName() {
@@ -179,12 +174,12 @@ public class User {
             return false;
         }
         final var user = (User) o;
-        return email.equals(user.email);
+        return profile.getEmail().equals(user.profile.getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email);
+        return Objects.hash(profile.getEmail());
     }
 
     Profile viewProfile(User user) {
@@ -192,6 +187,7 @@ public class User {
     }
 
     private boolean checkUserPermission(User user) {
-        return user.getType().equals(UserType.PROJECT_MANAGER) || user.getType().equals(UserType.SYSADMIN);
+        return user.getType().equals(UserType.PROJECT_MANAGER)
+                || user.getType().equals(UserType.SYSADMIN);
     }
 }

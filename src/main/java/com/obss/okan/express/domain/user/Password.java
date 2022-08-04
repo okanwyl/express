@@ -14,8 +14,7 @@ class Password {
         this.encodedPassword = encodedPassword;
     }
 
-    protected Password() {
-    }
+    protected Password() {}
 
     static Password of(String rawPassword, PasswordEncoder passwordEncoder) {
         return new Password(passwordEncoder.encode(rawPassword));

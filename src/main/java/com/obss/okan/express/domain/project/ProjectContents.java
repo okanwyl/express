@@ -28,8 +28,7 @@ public class ProjectContents {
         this.endDate = endDate;
     }
 
-    protected ProjectContents() {
-    }
+    protected ProjectContents() {}
 
     public ProjectTitle getTitle() {
         return title;
@@ -49,8 +48,7 @@ public class ProjectContents {
 
     void updateProjectContentsIfPresent(ProjectUpdateRequest updateRequest) {
         updateRequest.getTitleToUpdate().ifPresent(titleToUpdate -> title = titleToUpdate);
-        updateRequest
-                .getDescriptionToUpdate()
+        updateRequest.getDescriptionToUpdate()
                 .ifPresent(descriptionToUpdate -> description = descriptionToUpdate);
         updateRequest.getBodyToUpdate().ifPresent(bodyToUpdate -> body = bodyToUpdate);
         updateRequest.getDateToUpdate().ifPresent(endDateToUpdate -> endDate = endDateToUpdate);

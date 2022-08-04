@@ -6,11 +6,12 @@ import javax.persistence.Embedded;
 
 @Embeddable
 public class Profile {
-
-    @Column(name = "name", nullable = false)
+    @Embedded
+    private Email email;
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname", nullable = false)
+    @Column(name = "surname")
     private String surname;
 
     @Column(name = "bio")
@@ -19,18 +20,20 @@ public class Profile {
     @Embedded
     private Image image;
 
-    public Profile(String name, String surname) {
-        this(name, surname, null, null);
+    public Profile(Email email) {
+        this(email, null, null);
     }
 
-    private Profile(String name, String surname, String bio, Image image) {
-        this.name = name;
-        this.surname = name;
+    private Profile(Email email, String bio, Image image) {
+        this.email = email;
         this.bio = bio;
         this.image = image;
     }
 
-    protected Profile() {
+    protected Profile() {}
+
+    public Email getEmail() {
+        return email;
     }
 
     public String getBio() {
@@ -63,5 +66,9 @@ public class Profile {
 
     void changeSurname(String surname) {
         this.surname = surname;
+    }
+
+    void changeEmail(Email email) {
+        this.email = email;
     }
 }
