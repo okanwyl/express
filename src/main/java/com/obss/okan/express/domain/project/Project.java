@@ -24,8 +24,12 @@ public class Project {
     @Id
     private long id;
 
+    @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = EAGER)
+    private User createdBy;
+
     @Transient
-    private final boolean active = false;
+    private boolean favorited = false;
 
     @JoinTable(name = "project_users",
             joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id",
@@ -33,7 +37,7 @@ public class Project {
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id",
                     nullable = false))
     @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
-    private final Set<User> attendedUsers = new HashSet<>();
+    private final Set<User> userAdded = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private final Set<Task> tasks = new HashSet<>();
@@ -54,21 +58,23 @@ public class Project {
     @LastModifiedDate
     private Instant updatedAt;
 
-    public Project(ProjectContents contents) {
+    public Project(ProjectContents contents, User creator) {
         this.contents = contents;
+        this.createdBy = creator;
     }
 
-    protected Project() {}
+    protected Project() {
+    }
 
     public Project addUser(User userToAdd) {
-        attendedUsers.add(userToAdd);
+        userAdded.add(userToAdd);
         return this;
     }
 
     public void removeUser(long userId) {
-        final var userToDelete = attendedUsers.stream().filter(user -> user.getId().equals(userId))
+        final var userToDelete = userAdded.stream().filter(user -> user.getId().equals(userId))
                 .findFirst().orElseThrow(NoSuchElementException::new);
-        attendedUsers.remove(userToDelete);
+        userAdded.remove(userToDelete);
     }
 
     public void updateProject(User user, ProjectUpdateRequest updateRequest) {
@@ -76,7 +82,7 @@ public class Project {
     }
 
     public Task addTask(User user, String body) {
-        if (!checkUserAttendingStatus(user))
+        if (!checkUserAttendingStatus(user.getId()))
             throw new IllegalAccessError("Not authorized request!");
         final var taskToAdd = new Task(this, user, body);
         tasks.add(taskToAdd);
@@ -84,11 +90,16 @@ public class Project {
     }
 
     public void removeTask(User user, long taskId) {
-        if (!checkUserAttendingStatus(user))
+        if (!checkUserAttendingStatus(user.getId()))
             throw new IllegalAccessError("Not authorized request!");
         final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId))
                 .findFirst().orElseThrow(NoSuchElementException::new);
         tasks.remove(taskToRemove);
+    }
+
+    public Project updateFavoriteByUser(User user) {
+        favorited = userAdded.contains(user);
+        return this;
     }
     //
     // public Sprint createSprint(String body) {
@@ -129,11 +140,11 @@ public class Project {
     }
 
     public int getAttendedCount() {
-        return attendedUsers.size();
+        return userAdded.size();
     }
 
     public Set<User> getAttenders() {
-        return attendedUsers;
+        return userAdded;
     }
 
     public Set<Task> getTasks() {
@@ -142,6 +153,10 @@ public class Project {
 
     public int getTaskCount() {
         return tasks.size();
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
     }
 
     @Override
@@ -160,7 +175,9 @@ public class Project {
     }
 
 
-    private boolean checkUserAttendingStatus(User user) {
-        return attendedUsers.contains(user);
+    public boolean checkUserAttendingStatus(long userId) {
+         final var userToLook = userAdded.stream().filter(user -> user.getId().equals(userId))
+                .findFirst().orElseThrow(NoSuchElementException::new);
+        return userToLook != null;
     }
 }

@@ -4,19 +4,19 @@ public class CreateUserRequest {
 
     private final Email email;
     private final String rawPassword;
-    private final UserType userType;
+    private final String userType;
 
     public CreateUserRequest(Email email, String rawPassword, String userType) {
         this.email = email;
         this.rawPassword = rawPassword;
-        this.userType = UserType.lookup(Integer.parseInt(userType));
+        this.userType = userType;
     }
 
     public Email getEmail() {
         return email;
     }
 
-    public UserType getUserType() {
+    public String getUserType() {
         return userType;
     }
 

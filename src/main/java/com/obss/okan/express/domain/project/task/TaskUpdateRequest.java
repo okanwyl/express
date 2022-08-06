@@ -15,6 +15,11 @@ public class TaskUpdateRequest {
         this.bodyToUpdate = builder.bodyToUpdate;
     }
 
+    private TaskUpdateRequest(User userToUpdate, String bodyToUpdate) {
+        this.assignedToUserUpdate = userToUpdate;
+        this.bodyToUpdate = bodyToUpdate;
+    }
+
     public static TaskUpdateRequestBuilder builder() {
         return new TaskUpdateRequestBuilder();
     }

@@ -21,25 +21,24 @@ class ProjectModel {
 
     @Value
     static class ProjectModelNested {
+        String slug;
         String title;
         String description;
         String body;
-        // Set<String> userList;
         ZonedDateTime createdAt;
         ZonedDateTime updatedAt;
-        // boolean favorited;
-        // int favoritesCount;
-        // ProfileModel.ProfileModelNested author;
+        ProfileModel.ProfileModelNested creator;
 
         static ProjectModelNested fromProject(Project project) {
             final var contents = project.getContents();
-            final var titleFromArticle = contents.getTitle();
-            return new ProjectModelNested(titleFromArticle.getTitle(), contents.getDescription(),
-                    contents.getBody(),
-                    // contents.getTags().stream().map(Tag::toString).collect(toSet()),
+            final var titleFromProject = contents.getTitle();
+            return new ProjectModelNested(
+                    titleFromProject.getSlug(), titleFromProject.getTitle(),
+                    contents.getDescription(), contents.getBody(),
                     project.getCreatedAt().atZone(ZoneId.of("Europe/Istanbul")),
-                    project.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")));
-            // ProfileModel.ProfileModelNested.fromProfile(project.getCreator().getProfile()));
+                    project.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")),
+                    ProfileModel.ProfileModelNested.fromProfile(project.getCreatedBy().getProfile()));
+
         }
     }
 }

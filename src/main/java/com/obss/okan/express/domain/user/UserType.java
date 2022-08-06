@@ -5,16 +5,20 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 public enum UserType {
-    SYSADMIN(0), PROJECT_MANAGER(1), TEAM_LEADER(2), DEVELOPER(3);
+    SYSADMIN(0),
+    PROJECT_MANAGER(1),
+    TEAM_LEADER(2),
+    DEVELOPER(3);
 
     private int type;
 
-    UserType(int type) {}
+    UserType(int type) {
+        this.type = type;
+    }
 
 
     public static UserType lookup(Integer type) {
-        return Arrays.stream(UserType.values()).filter(value -> value.getType().equals(type))
-                .findAny().orElseThrow(NoSuchElementException::new);
+        return Arrays.stream(UserType.values()).filter(value -> value.getType().equals(type)).findFirst().orElseThrow(NoSuchElementException::new);
     }
 
     public Integer getType() {

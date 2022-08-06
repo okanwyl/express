@@ -3,12 +3,15 @@ package com.obss.okan.express.domain.user;
 import com.obss.okan.express.domain.project.Project;
 import com.obss.okan.express.domain.project.ProjectContents;
 import com.obss.okan.express.domain.project.ProjectUpdateRequest;
-import com.obss.okan.express.domain.project.sprint.Sprint;
+//import com.obss.okan.express.domain.project.sprint.Sprint;
 import com.obss.okan.express.domain.project.task.Task;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Table(name = "users")
 @Entity
@@ -26,8 +29,8 @@ public class User {
     @Column(name = "type")
     private UserType type;
 
-    static User of(Email address, Password password, UserType type) {
-        return new User(new Profile(address), password, type);
+    static User of(Email address, Password password, String type) {
+        return new User(new Profile(address), password, UserType.lookup(Integer.parseInt(type)));
     }
 
     private User(Profile profile, Password password, UserType type) {
@@ -36,7 +39,8 @@ public class User {
         this.type = type;
     }
 
-    protected User() {}
+    protected User() {
+    }
 
 
     public void setType(UserType type) {
@@ -44,14 +48,14 @@ public class User {
     }
 
     public Project createProject(ProjectContents contents) {
-        if (!checkUserPermission(this)) {
+        if (!checkUserPermission()) {
             throw new IllegalAccessError("Not authorized access request!");
         }
-        return new Project(contents);
+        return new Project(contents, this);
     }
 
     public Project updateProject(Project project, ProjectUpdateRequest request) {
-        if (!checkUserPermission(this)) {
+        if (!checkUserPermission()) {
             throw new IllegalAccessError("Not authorized access request!");
         }
         project.updateProject(this, request);
@@ -62,48 +66,39 @@ public class User {
         return project.addTask(this, body);
     }
 
-    public void deleteTaskFromProject(Project project, long taskId) {
-        project.removeTask(this, taskId);
-    }
-
-
     public Project addUserToProject(Project project, User user) {
-        if (!checkUserPermission(this)) {
+        if (!checkUserPermission()) {
             throw new IllegalAccessError("Not authorized access request!");
         }
         return project.addUser(user);
     }
 
     public void removeUserFromProject(Project project, long userId) {
-        if (!checkUserPermission(this)) {
+        if (!checkUserPermission()) {
             throw new IllegalAccessError("Not authorized access request!");
         }
         project.removeUser(userId);
     }
 
-    // public Sprint createAndAddSprintToProject(Project project, String body) {
-    // if (!checkUserPermission(this)) {
-    // throw new IllegalAccessError("Not authorized access request!");
-    // }
-    // return project.createSprint(body);
-    // }
-    //
-    // public void addTaskToSprint(Project project, long sprintId, long taskId) {
-    // if (!checkUserPermission(this)) {
-    // throw new IllegalAccessError("Not authorized access request!");
-    // }
-    // project.addTaskToSprint(taskId, sprintId);
-    //
-    // }
+    public Set<Task> viewProjectTasks(Project project) {
+        if (!checkUserPermission() || project.checkUserAttendingStatus(this.getId())) {
+            throw new IllegalAccessError("Not authorized access request!");
+        }
+        return project.getTasks().stream()
+                .map(this::viewTask)
+                .collect(Collectors.toSet());
+    }
 
-    // public void removeTaskFromSprint(Project project, long sprintId, long taskId) {
-    // if (!checkUserPermission(this)) {
-    // throw new IllegalAccessError("Not authorized access request!");
-    // }
-    // project.addTaskToSprint(taskId, sprintId);
-    //
-    // }
+    Task viewTask(Task task) {
+        viewProfile(task.getAssignedToUser());
+        return task;
+    }
 
+    public void deleteProjectTask(Project project, long taskId) {
+        if (!project.checkUserAttendingStatus(this.getId()))
+            throw new IllegalAccessError("Not authorized access request!");
+        project.removeTask(this, taskId);
+    }
 
     public Profile getProfile() {
         return profile;
@@ -186,8 +181,8 @@ public class User {
         return user.profile;
     }
 
-    private boolean checkUserPermission(User user) {
-        return user.getType().equals(UserType.PROJECT_MANAGER)
-                || user.getType().equals(UserType.SYSADMIN);
+    public boolean checkUserPermission() {
+        return this.getType().equals(UserType.PROJECT_MANAGER)
+                || this.getType().equals(UserType.SYSADMIN);
     }
 }

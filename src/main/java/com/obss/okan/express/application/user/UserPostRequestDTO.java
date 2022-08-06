@@ -2,7 +2,6 @@ package com.obss.okan.express.application.user;
 
 import com.obss.okan.express.domain.user.CreateUserRequest;
 import com.obss.okan.express.domain.user.Email;
-import com.obss.okan.express.domain.user.UserType;
 import lombok.Value;
 
 
