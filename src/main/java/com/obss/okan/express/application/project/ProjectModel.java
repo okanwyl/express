@@ -35,7 +35,7 @@ class ProjectModel {
         String slug;
         String title;
         String body;
-        Set<String> users;
+//        Set<String> users;
 //        Set<String> tasks;
         ZonedDateTime createdAt;
         ZonedDateTime updatedAt;
@@ -46,7 +46,7 @@ class ProjectModel {
             return new ProjectModelNested(
                     titleFromProject.getSlug(), titleFromProject.getTitle(),
                     contents.getBody(),
-                    project.getAttenders().stream().map(User::toString).collect(toSet()),
+//                    project.getAttenders().stream().map(User::toString).collect(toSet()),
 //                    project.getBacklog().stream().map(Task::toString).collect(toSet()),
                     project.getCreatedAt().atZone(ZoneId.of("Europe/Istanbul")),
                     project.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")));

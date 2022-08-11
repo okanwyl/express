@@ -55,13 +55,17 @@ class ProjectRestController {
     }
 
 
-    // @FIXME
     @GetMapping("/projects/{slug}")
     public ResponseEntity<Object> getProjectBySlug(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug) {
         final var projectToShow = projectService.getProjectBySlug(slug);
-        if (!projectToShow.map(project -> project.getAttenders().contains(jwtPayload)).get())
+        final var userToCheck = userFindService.findById(jwtPayload.getUserId());
+        if (!projectToShow.map(project -> project.checkUserAttendingStatus(jwtPayload.getUserId())).get()) {
+            if (userToCheck.map(user -> user.checkUserPermission()).get()) {
+                return of(projectToShow.map(ProjectModelDetailed.ProjectModelNestedDetailed::fromProject));
+            }
             return new ResponseEntity<Object>("You are not authorized to view this project", new HttpHeaders(), HttpStatus.FORBIDDEN);
-        return of(projectToShow.map(ProjectModel::fromProject));
+        }
+        return of(projectToShow.map(ProjectModelDetailed::fromProject));
     }
 
     @PostMapping("/projects/{slug}/user")

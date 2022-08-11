@@ -18,9 +18,7 @@ import static java.util.Optional.ofNullable;
 @Value
 class ProjectPutRequestDTO {
 
-    @NotBlank(message = "Project title cannot be empty!")
     String title;
-    @NotBlank(message = "Project title cannot be empty!")
     String body;
 
     // @FIXME DATE UPDATE

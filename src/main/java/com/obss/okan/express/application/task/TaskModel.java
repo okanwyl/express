@@ -30,8 +30,9 @@ public class TaskModel {
         String body;
         ZonedDateTime createdAt;
         ZonedDateTime updatedAt;
-        //        ProfileModel.ProfileModelNested assignedTo;
+        String assignedTo;
         ProfileModel.ProfileModelNested createdBy;
+        String columnName;
 
         static TaskModelNested fromTask(Task task) {
             return new TaskModelNested(task.getId(),
@@ -39,8 +40,10 @@ public class TaskModel {
                     task.getBody(),
                     task.getCreatedAt().atZone(ZoneId.of("Europe/Istanbul")),
                     task.getUpdatedAt().atZone(ZoneId.of("Europe/Istanbul")),
-//                    ProfileModel.ProfileModelNested.fromProfile(task.getAssignedToUser().getProfile()),
-                    ProfileModel.ProfileModelNested.fromProfile(task.getCreator().getProfile()));
+                    task.getAssignedToUserEmail(),
+                    ProfileModel.ProfileModelNested.fromProfile(task.getCreator().getProfile()),
+                    task.getColumnName());
+
 
         }
     }
