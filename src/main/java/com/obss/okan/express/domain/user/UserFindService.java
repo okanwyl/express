@@ -6,4 +6,7 @@ public interface UserFindService {
     Optional<User> findById(long id);
 
     Optional<User> findByEmail(Email email);
+    Optional<User> findByUserName(UserName userName);
+
 }
+

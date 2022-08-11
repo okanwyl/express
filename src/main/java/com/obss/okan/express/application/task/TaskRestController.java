@@ -1,12 +1,16 @@
 package com.obss.okan.express.application.task;
 
+import com.obss.okan.express.domain.exception.NotAuthorizedRequestException;
 import com.obss.okan.express.domain.jwt.JWTPayload;
+import com.obss.okan.express.domain.project.task.Task;
 import com.obss.okan.express.domain.project.task.TaskService;
 import com.obss.okan.express.infrastructure.jwt.UserJWTPayload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.util.Set;
 
 import static java.util.Optional.ofNullable;
 
@@ -22,20 +26,19 @@ class TaskRestController {
     public TaskModel postTask(@AuthenticationPrincipal UserJWTPayload jwtPayload,
                               @PathVariable String slug,
                               @Valid @RequestBody TaskPostRequestDTO dto) {
-        final var taskAdded = taskService.createTask(jwtPayload.getUserId(), slug, dto.getBody());
+        final var taskAdded = taskService.createTask(jwtPayload.getUserId(), slug, dto.getBody(), dto.getTitle());
         return TaskModel.fromTask(taskAdded);
     }
 
     @GetMapping("/projects/{slug}/tasks")
     public MultipleTaskModel getTasks(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-                                      @PathVariable String slug) {
+                                            @PathVariable String slug) {
         final var tasks = ofNullable(jwtPayload)
                 .map(JWTPayload::getUserId)
                 .map(userId -> taskService.getTasks(userId, slug))
                 .orElseGet(() -> taskService.getTasks(slug));
         return MultipleTaskModel.fromTasks(tasks);
     }
-
     @DeleteMapping("/projects/{slug}/tasks/{id}")
     public void deleteTask(@AuthenticationPrincipal UserJWTPayload jwtPayload,
                            @PathVariable String slug, @PathVariable long id) {

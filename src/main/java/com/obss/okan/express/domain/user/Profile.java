@@ -3,11 +3,14 @@ package com.obss.okan.express.domain.user;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+import java.awt.*;
 
 @Embeddable
 public class Profile {
     @Embedded
     private Email email;
+    @Embedded
+    private UserName userName;
     @Column(name = "name")
     private String name;
 
@@ -17,31 +20,32 @@ public class Profile {
     @Column(name = "bio")
     private String bio;
 
-    @Embedded
-    private Image image;
 
-    public Profile(Email email) {
-        this(email, null, null);
+    public Profile(Email email, UserName userName) {
+        this(email, userName, "", "", "");
     }
 
-    private Profile(Email email, String bio, Image image) {
+    private Profile(Email email, UserName userName, String name, String surname, String bio) {
         this.email = email;
+        this.userName = userName;
         this.bio = bio;
-        this.image = image;
+        this.name = name;
+        this.surname = surname;
     }
 
-    protected Profile() {}
+    protected Profile() {
+    }
 
     public Email getEmail() {
         return email;
     }
 
-    public String getBio() {
-        return bio;
+    public UserName getUserName() {
+        return userName;
     }
 
-    public Image getImage() {
-        return image;
+    public String getBio() {
+        return bio;
     }
 
     public String getName() {
@@ -56,10 +60,6 @@ public class Profile {
         this.bio = bio;
     }
 
-    void changeImage(Image image) {
-        this.image = image;
-    }
-
     void changeName(String name) {
         this.name = name;
     }
@@ -68,7 +68,9 @@ public class Profile {
         this.surname = surname;
     }
 
-    void changeEmail(Email email) {
-        this.email = email;
+    @Override
+    public String toString(){
+        return name + "," + surname + "," + email + "," + userName;
     }
+
 }

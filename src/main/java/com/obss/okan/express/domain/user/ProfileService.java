@@ -14,8 +14,8 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public Profile viewProfile(Email email) {
-        return userFindService.findByEmail(email).map(User::getProfile).orElseThrow(NoSuchElementException::new);
+    public Profile viewProfile(UserName userName) {
+        return userFindService.findByUserName(userName).map(User::getProfile).orElseThrow(NoSuchElementException::new);
     }
 
     @Transactional(readOnly = true)

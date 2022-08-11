@@ -16,11 +16,11 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 @Getter
 class ProjectUsersPostRequestDTO {
 
-    @NotBlank
-    private final String id;
+    @NotBlank(message = "Username cannot be blank")
+    private final String username;
 
     @JsonCreator
-    ProjectUsersPostRequestDTO(String id) {
-        this.id = id;
+    ProjectUsersPostRequestDTO(String username) {
+        this.username = username;
     }
 }

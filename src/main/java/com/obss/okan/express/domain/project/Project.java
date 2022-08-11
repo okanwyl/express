@@ -1,7 +1,12 @@
 package com.obss.okan.express.domain.project;
 
+import com.obss.okan.express.domain.exception.NotAuthorizedRequestException;
 import com.obss.okan.express.domain.project.task.Task;
+import com.obss.okan.express.domain.project.task.TaskService;
+import com.obss.okan.express.domain.project.task.TaskTitle;
 import com.obss.okan.express.domain.user.User;
+import com.obss.okan.express.domain.user.UserName;
+import com.obss.okan.express.domain.user.UserType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,34 +18,32 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.EAGER;
 
 @Table(name = "projects")
-@Entity
 @EntityListeners(AuditingEntityListener.class)
+@Entity
 public class Project {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
 
-    @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
-    @ManyToOne(fetch = EAGER)
-    private User createdBy;
-
     @Transient
-    private boolean favorited = false;
+    private boolean attended = false;
 
     @JoinTable(name = "project_users",
             joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id",
                     nullable = false),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id",
                     nullable = false))
-    @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = EAGER, cascade = PERSIST)
     private final Set<User> userAdded = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private final Set<Task> tasks = new HashSet<>();
+    @OneToMany(mappedBy = "project", cascade = {PERSIST, REMOVE}, fetch = EAGER)
+    private final Set<Task> backlog = new HashSet<>();
 
     // @FIMXE should we implement as a queue?
     // @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
@@ -58,9 +61,8 @@ public class Project {
     @LastModifiedDate
     private Instant updatedAt;
 
-    public Project(ProjectContents contents, User creator) {
+    public Project(ProjectContents contents) {
         this.contents = contents;
-        this.createdBy = creator;
     }
 
     protected Project() {
@@ -71,8 +73,8 @@ public class Project {
         return this;
     }
 
-    public void removeUser(long userId) {
-        final var userToDelete = userAdded.stream().filter(user -> user.getId().equals(userId))
+    public void removeUser(UserName userId) {
+        final var userToDelete = userAdded.stream().filter(user -> user.getProfile().getUserName().equals(userId))
                 .findFirst().orElseThrow(NoSuchElementException::new);
         userAdded.remove(userToDelete);
     }
@@ -81,24 +83,29 @@ public class Project {
         contents.updateProjectContentsIfPresent(updateRequest);
     }
 
-    public Task addTask(User user, String body) {
-        if (!checkUserAttendingStatus(user.getId()))
-            throw new IllegalAccessError("Not authorized request!");
-        final var taskToAdd = new Task(this, user, body);
-        tasks.add(taskToAdd);
-        return taskToAdd;
+    public Task addTask(User user, String body, String title) {
+        boolean checkTeamLeader = userAdded.contains(user) || user.getType().equals(UserType.TEAM_LEADER);
+        if (user.getType().equals(UserType.SYSADMIN) || user.getType().equals(UserType.PROJECT_MANAGER)
+        || checkTeamLeader)
+        {
+            final var taskToAdd = new Task(this, user, TaskTitle.of(title), body);
+            backlog.add(taskToAdd);
+            return taskToAdd;
+        }
+        throw new NotAuthorizedRequestException("Not authorized");
     }
 
     public void removeTask(User user, long taskId) {
-        if (!checkUserAttendingStatus(user.getId()))
-            throw new IllegalAccessError("Not authorized request!");
-        final var taskToRemove = tasks.stream().filter(task -> task.getId().equals(taskId))
+        if (checkUserAttendingStatus(user.getId())) {
+            throw new NotAuthorizedRequestException("Not authorized request");
+        }
+        final var taskToRemove = backlog.stream().filter(task -> task.getId().equals(taskId))
                 .findFirst().orElseThrow(NoSuchElementException::new);
-        tasks.remove(taskToRemove);
+        backlog.remove(taskToRemove);
     }
 
-    public Project updateFavoriteByUser(User user) {
-        favorited = userAdded.contains(user);
+    public Project updateAttendedByUser(User user) {
+        attended = userAdded.contains(user);
         return this;
     }
     //
@@ -147,17 +154,21 @@ public class Project {
         return userAdded;
     }
 
-    public Set<Task> getTasks() {
-        return tasks;
+    public Set<Task> getBacklog() {
+        return backlog;
+    }
+
+    public Set<Task> getBacklogWithUser(long userId) {
+        if (!checkUserAttendingStatus(userId)) {
+            throw new NotAuthorizedRequestException("Not authorized request");
+        }
+        return backlog;
     }
 
     public int getTaskCount() {
-        return tasks.size();
+        return backlog.size();
     }
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -175,9 +186,12 @@ public class Project {
     }
 
 
-    public boolean checkUserAttendingStatus(long userId) {
-         final var userToLook = userAdded.stream().filter(user -> user.getId().equals(userId))
-                .findFirst().orElseThrow(NoSuchElementException::new);
-        return userToLook != null;
+    private boolean checkUserAttendingStatus(long userId) {
+        final var userToLook = userAdded.stream().filter(user -> user.getId().equals(userId)).findFirst();
+        if (userToLook.isPresent()) {
+            return true;
+        }
+        return false;
+
     }
 }

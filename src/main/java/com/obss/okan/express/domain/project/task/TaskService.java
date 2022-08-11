@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.util.Optionals.mapIfAllPresent;
@@ -26,9 +25,9 @@ public class TaskService {
     }
 
     @Transactional
-    public Task createTask(long userId, String slug, String body) {
+    public Task createTask(long userId, String slug, String body, String title) {
         return mapIfAllPresent(userFindService.findById(userId), projectFindService.getProjectBySlug(slug),
-                (user, article) -> user.createAndAddTaskToProject(article, body))
+                (user, project) -> user.createAndAddTaskToProject(project,title, body))
                 .orElseThrow(NoSuchElementException::new);
     }
 
@@ -42,7 +41,7 @@ public class TaskService {
     @Transactional(readOnly = true)
     public Set<Task> getTasks(String slug) {
         return projectFindService.getProjectBySlug(slug)
-                .map(Project::getTasks)
+                .map(Project::getBacklog)
                 .orElseThrow(NoSuchElementException::new);
     }
 

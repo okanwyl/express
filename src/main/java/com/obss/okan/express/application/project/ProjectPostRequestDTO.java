@@ -2,6 +2,7 @@ package com.obss.okan.express.application.project;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.obss.okan.express.domain.project.Project;
 import com.obss.okan.express.domain.project.ProjectContents;
 import com.obss.okan.express.domain.project.ProjectTitle;
 import lombok.Value;
@@ -21,19 +22,18 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 @JsonTypeInfo(include = WRAPPER_OBJECT, use = NAME)
 @Value
 class ProjectPostRequestDTO {
-    @NotBlank String title;
-    @NotBlank String description;
-    @NotBlank String body;
-    @NotNull String endDate;
-    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @NotBlank(message = "Project title cannot be empty!")
+    String title;
+
+    @NotBlank(message = "Project body cannot be empty!")
+    String body;
+//    @NotNull String endDate;
+//    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // @TODO
     ProjectContents toProjectContents() {
-        try {
-            return new ProjectContents(description, ProjectTitle.of(title), body,
-                    format.parse(endDate));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+//            return new ProjectContents(ProjectTitle.of(title), body,
+//                    format.parse(endDate));
+        return new ProjectContents(ProjectTitle.of(title), body);
     }
 }

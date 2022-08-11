@@ -2,7 +2,9 @@ package com.obss.okan.express.application.project;
 
 
 import com.obss.okan.express.domain.project.ProjectService;
-import com.obss.okan.express.domain.user.Email;
+import com.obss.okan.express.domain.user.UserFindService;
+import com.obss.okan.express.domain.user.UserName;
+import com.obss.okan.express.domain.user.UserType;
 import com.obss.okan.express.infrastructure.jwt.UserJWTPayload;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,20 +23,21 @@ import static org.springframework.http.ResponseEntity.of;
 @RestController
 class ProjectRestController {
     private final ProjectService projectService;
+    private final UserFindService userFindService;
 
-    ProjectRestController(ProjectService projectService) {
+    ProjectRestController(ProjectService projectService, UserFindService userFindService) {
         this.projectService = projectService;
+        this.userFindService = userFindService;
     }
 
     @PostMapping("/projects")
-    public ProjectModel postArticle(@AuthenticationPrincipal UserJWTPayload jwtPayload, @Valid @RequestBody ProjectPostRequestDTO dto) {
+    public ProjectModel postProject(@AuthenticationPrincipal UserJWTPayload jwtPayload, @Valid @RequestBody ProjectPostRequestDTO dto) {
         var projectCreated = projectService.createNewProject(jwtPayload.getUserId(), dto.toProjectContents());
         return ProjectModel.fromProject(projectCreated);
     }
 
     @GetMapping("/projects")
-    public MultipleProjectModel getProjects(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-                                            Pageable pageable) {
+    public MultipleProjectModel getProjects(@AuthenticationPrincipal UserJWTPayload jwtPayload, Pageable pageable) {
         final var projects = projectService.getProjects(jwtPayload.getUserId(), pageable);
         return MultipleProjectModel.fromProjects(projects);
     }
@@ -46,12 +49,13 @@ class ProjectRestController {
     }
 
     @PutMapping("/projects/{slug}")
-    public ProjectModel putArticleBySlug(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug, @RequestBody ProjectPutRequestDTO dto) {
+    public ProjectModel putProjectBySlug(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug, @RequestBody ProjectPutRequestDTO dto) {
         final var projectUpdated = projectService.updateProject(jwtPayload.getUserId(), slug, dto.toUpdateRequest());
         return ProjectModel.fromProject(projectUpdated);
     }
 
 
+    // @FIXME
     @GetMapping("/projects/{slug}")
     public ResponseEntity<Object> getProjectBySlug(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug) {
         final var projectToShow = projectService.getProjectBySlug(slug);
@@ -61,26 +65,20 @@ class ProjectRestController {
     }
 
     @PostMapping("/projects/{slug}/user")
-    public ProjectModel postUserToProject(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-                                          @PathVariable String slug,
-                                          @Valid @RequestBody ProjectUsersPostRequestDTO dto) {
-        final var projectUpdated = projectService.addUserToProject(jwtPayload.getUserId(), slug, Long.parseLong(dto.getId()));
+    public ProjectModel postUserToProject(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug, @Valid @RequestBody ProjectUsersPostRequestDTO dto) {
+        final var projectUpdated = projectService.addUserToProject(jwtPayload.getUserId(), slug, new UserName(dto.getUsername()));
         return ProjectModel.fromProject(projectUpdated);
     }
 
     @ResponseStatus(NO_CONTENT)
     @PostMapping("/projects/{slug}/deleteuser")
-    public void deleteUserFromProject(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-                                      @PathVariable String slug,
-                                      @Valid @RequestBody ProjectUsersPostRequestDTO dto) {
-        projectService.deleteUserFromProject(jwtPayload.getUserId(), slug, Long.parseLong(dto.getId()));
+    public void deleteUserFromProject(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug, @Valid @RequestBody ProjectUsersPostRequestDTO dto) {
+        projectService.deleteUserFromProject(jwtPayload.getUserId(), slug, new UserName(dto.getUsername()));
     }
 
-//    @ResponseStatus(NO_CONTENT)
-//    @DeleteMapping("/projects/{slug}")
-//    public void deleteProjectBySlug(@AuthenticationPrincipal UserJWTPayload jwtPayload,
-//                                    @PathVariable String slug) {
-//        projectService.deleteProjectBySlug(jwtPayload.getUserId(), slug);
-//    }
-
+    @ResponseStatus(NO_CONTENT)
+    @DeleteMapping("/projects/{slug}")
+    public void deleteProjectByContentsTitleSlug(@AuthenticationPrincipal UserJWTPayload jwtPayload, @PathVariable String slug) {
+        projectService.deleteProjectBySlug(jwtPayload.getUserId(), slug);
+    }
 }

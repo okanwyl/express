@@ -14,15 +14,11 @@ import static java.lang.String.valueOf;
 @Value
 class UserModel {
     String email;
-    String name;
-    String surname;
+    String username;
     String token;
-    String bio;
-    String image;
 
     static UserModel fromUserAndToken(User user, String token) {
-        return new UserModel(valueOf(user.getEmail()), valueOf(user.getName()),
-                valueOf(user.getSurname()), token, "", "");
+        return new UserModel(valueOf(user.getEmail()), valueOf(user.getProfile().getUserName()), token);
     }
 }
 

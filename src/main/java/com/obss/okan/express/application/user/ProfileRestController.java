@@ -3,6 +3,7 @@ package com.obss.okan.express.application.user;
 import com.obss.okan.express.domain.jwt.JWTPayload;
 import com.obss.okan.express.domain.user.Email;
 import com.obss.okan.express.domain.user.ProfileService;
+import com.obss.okan.express.domain.user.UserName;
 import com.obss.okan.express.infrastructure.jwt.UserJWTPayload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +26,11 @@ class ProfileRestController {
         this.profileService = profileService;
     }
 
-    @GetMapping("/{email}")
-    public ProfileModel getProfileByUsername(@PathVariable Email email) {
-        return ofNullable(profileService.viewProfile(email))
+    @GetMapping("/{username}")
+    public ProfileModel getProfileByUsername(@PathVariable UserName username) {
+        return ofNullable(profileService.viewProfile(username))
                 .map(ProfileModel::fromProfile)
-                .orElseGet(() -> fromProfile(profileService.viewProfile(email)));
+                .orElseGet(() -> fromProfile(profileService.viewProfile(username)));
 
     }
 

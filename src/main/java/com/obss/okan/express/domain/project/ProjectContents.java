@@ -15,44 +15,26 @@ public class ProjectContents {
     private ProjectTitle title;
 
     @Column(nullable = false)
-    private String description;
-
-    @Column(nullable = false)
     private String body;
 
-    @Column(nullable = true)
-    private Date endDate;
-
-    public ProjectContents(String description, ProjectTitle title, String body, Date endDate) {
-        this.description = description;
+    public ProjectContents(ProjectTitle title, String body) {
         this.title = title;
         this.body = body;
-        this.endDate = endDate;
     }
 
-    protected ProjectContents() {}
+    protected ProjectContents() {
+    }
 
     public ProjectTitle getTitle() {
         return title;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getBody() {
         return body;
     }
 
-    public Date getEndDate() {
-        return endDate;
-    }
-
     void updateProjectContentsIfPresent(ProjectUpdateRequest updateRequest) {
         updateRequest.getTitleToUpdate().ifPresent(titleToUpdate -> title = titleToUpdate);
-        updateRequest.getDescriptionToUpdate()
-                .ifPresent(descriptionToUpdate -> description = descriptionToUpdate);
         updateRequest.getBodyToUpdate().ifPresent(bodyToUpdate -> body = bodyToUpdate);
-        updateRequest.getDateToUpdate().ifPresent(endDateToUpdate -> endDate = endDateToUpdate);
     }
 }

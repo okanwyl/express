@@ -1,11 +1,11 @@
 package com.obss.okan.express.domain.user;
 
+import com.obss.okan.express.domain.exception.NotAuthorizedRequestException;
 import com.obss.okan.express.domain.project.Project;
 import com.obss.okan.express.domain.project.ProjectContents;
 import com.obss.okan.express.domain.project.ProjectUpdateRequest;
 //import com.obss.okan.express.domain.project.sprint.Sprint;
 import com.obss.okan.express.domain.project.task.Task;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
@@ -29,8 +29,8 @@ public class User {
     @Column(name = "type")
     private UserType type;
 
-    static User of(Email address, Password password, String type) {
-        return new User(new Profile(address), password, UserType.lookup(Integer.parseInt(type)));
+    static User of(Email address, UserName userName, Password password, String type) {
+        return new User(new Profile(address, userName), password, UserType.lookup(Integer.parseInt(type)));
     }
 
     private User(Profile profile, Password password, UserType type) {
@@ -49,54 +49,50 @@ public class User {
 
     public Project createProject(ProjectContents contents) {
         if (!checkUserPermission()) {
-            throw new IllegalAccessError("Not authorized access request!");
+            throw new NotAuthorizedRequestException("Not authorized access request!");
         }
-        return new Project(contents, this);
+        return new Project(contents);
     }
 
     public Project updateProject(Project project, ProjectUpdateRequest request) {
         if (!checkUserPermission()) {
-            throw new IllegalAccessError("Not authorized access request!");
+            throw new NotAuthorizedRequestException("Not authorized access request!");
         }
         project.updateProject(this, request);
         return project;
     }
 
-    public Task createAndAddTaskToProject(Project project, String body) {
-        return project.addTask(this, body);
+    public Task createAndAddTaskToProject(Project project, String title, String body) {
+        return project.addTask(this, title, body);
     }
 
     public Project addUserToProject(Project project, User user) {
         if (!checkUserPermission()) {
-            throw new IllegalAccessError("Not authorized access request!");
+            throw new NotAuthorizedRequestException("Not authorized access request!");
         }
         return project.addUser(user);
     }
 
-    public void removeUserFromProject(Project project, long userId) {
+    public void removeUserFromProject(Project project, UserName username) {
         if (!checkUserPermission()) {
-            throw new IllegalAccessError("Not authorized access request!");
+            throw new NotAuthorizedRequestException("Not authorized access request!");
         }
-        project.removeUser(userId);
+        project.removeUser(username);
     }
 
     public Set<Task> viewProjectTasks(Project project) {
-        if (!checkUserPermission() || project.checkUserAttendingStatus(this.getId())) {
-            throw new IllegalAccessError("Not authorized access request!");
+        if (checkUserPermission()) {
+            return project.getBacklog();
         }
-        return project.getTasks().stream()
-                .map(this::viewTask)
-                .collect(Collectors.toSet());
+        return project.getBacklogWithUser(this.getId());
     }
 
     Task viewTask(Task task) {
-        viewProfile(task.getAssignedToUser());
+//        viewProfile(task.getAssignedToUser());
         return task;
     }
 
     public void deleteProjectTask(Project project, long taskId) {
-        if (!project.checkUserAttendingStatus(this.getId()))
-            throw new IllegalAccessError("Not authorized access request!");
         project.removeTask(this, taskId);
     }
 
@@ -106,10 +102,6 @@ public class User {
 
     boolean matchesPassword(String rawPassword, PasswordEncoder passwordEncoder) {
         return password.matchesPassword(rawPassword, passwordEncoder);
-    }
-
-    void changeEmail(Email email) {
-        this.profile.changeEmail(email);
     }
 
     void changePassword(Password password) {
@@ -126,10 +118,6 @@ public class User {
 
     void changeBio(String bio) {
         profile.changeBio(bio);
-    }
-
-    void changeImage(Image image) {
-        profile.changeImage(image);
     }
 
     public Long getId() {
@@ -156,10 +144,6 @@ public class User {
         return profile.getBio();
     }
 
-    Image getImage() {
-        return profile.getImage();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -177,12 +161,22 @@ public class User {
         return Objects.hash(profile.getEmail());
     }
 
-    Profile viewProfile(User user) {
-        return user.profile;
-    }
+//    Profile viewProfile(User user) {
+//        return user.profile;
+//    }
 
     public boolean checkUserPermission() {
         return this.getType().equals(UserType.PROJECT_MANAGER)
                 || this.getType().equals(UserType.SYSADMIN);
+    }
+
+    //    public boolean checkUserPermissionTeamLeader() {
+//        return this.getType().equals(UserType.PROJECT_MANAGER)
+//                || this.getType().equals(UserType.SYSADMIN)
+//                || this.getType().equals(UserType.TEAM_LEADER);
+//    }
+    @Override
+    public String toString() {
+        return this.profile.toString();
     }
 }

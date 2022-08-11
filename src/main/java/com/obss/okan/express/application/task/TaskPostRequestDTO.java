@@ -10,16 +10,19 @@ import javax.validation.constraints.NotBlank;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.WRAPPER_OBJECT;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
-@JsonTypeName("comment")
+@JsonTypeName("task")
 @JsonTypeInfo(include = WRAPPER_OBJECT, use = NAME)
 @Getter
 class TaskPostRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "Task body cannot be empty")
     private final String body;
 
+    @NotBlank(message = "Task body cannot be empty")
+    private final String title;
     @JsonCreator
-    TaskPostRequestDTO(String body) {
+    TaskPostRequestDTO(String body, String title) {
         this.body = body;
+        this.title = title;
     }
 }

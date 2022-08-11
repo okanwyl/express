@@ -6,6 +6,8 @@ import com.obss.okan.express.domain.project.ProjectTitle;
 import com.obss.okan.express.domain.project.ProjectUpdateRequest;
 import lombok.Value;
 
+import javax.validation.constraints.NotBlank;
+
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.WRAPPER_OBJECT;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 import static com.obss.okan.express.domain.project.ProjectUpdateRequest.builder;
@@ -16,14 +18,14 @@ import static java.util.Optional.ofNullable;
 @Value
 class ProjectPutRequestDTO {
 
+    @NotBlank(message = "Project title cannot be empty!")
     String title;
-    String description;
+    @NotBlank(message = "Project title cannot be empty!")
     String body;
 
     // @FIXME DATE UPDATE
     ProjectUpdateRequest toUpdateRequest() {
-        return builder().titleToUpdate(ofNullable(title).map(ProjectTitle::of).orElse(null))
-                .descriptionToUpdate(description).bodyToUpdate(body).build();
+        return builder().titleToUpdate(ofNullable(title).map(ProjectTitle::of).orElse(null)).bodyToUpdate(body).build();
     }
 
 }

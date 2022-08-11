@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.util.Objects;
 
+import static javax.persistence.FetchType.EAGER;
+
 @Table(name = "tasks")
 @EntityListeners(AuditingEntityListener.class)
 @Entity
@@ -18,17 +20,20 @@ public class Task {
     @Id
     private Long id;
 
-    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Embedded
+    private TaskTitle title;
+
+    @JoinColumn(name = "project_tasks", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = EAGER)
     private Project project;
 
     @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = EAGER)
     private User creator;
 
-    @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
-    @ManyToOne(fetch = FetchType.EAGER)
-    private User assignedToUser;
+//    @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
+//    @ManyToOne(fetch = EAGER)
+//    private User assignedToUser;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -41,13 +46,15 @@ public class Task {
     @Column(name = "body", nullable = false)
     private String body;
 
-    public Task(Project project, User creator, String body) {
+    public Task(Project project, User creator, TaskTitle title, String body) {
         this.project = project;
         this.creator = creator;
+        this.title = title;
         this.body = body;
     }
 
-    protected Task() {}
+    protected Task() {
+    }
 
     public Long getId() {
         return id;
@@ -65,13 +72,16 @@ public class Task {
         return updatedAt;
     }
 
+    public String getTitle(){
+        return title.getTitle();
+    }
     public String getBody() {
         return body;
     }
 
-    public User getAssignedToUser() {
-        return assignedToUser;
-    }
+//    public User getAssignedToUser() {
+//        return assignedToUser;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -88,4 +98,11 @@ public class Task {
     public int hashCode() {
         return Objects.hash(project, creator, createdAt, body);
     }
+
+//    @Override
+//    public String toString() {
+//        return title.getTitle() + "," +
+//                assignedToUser.toString() + ",";
+//    }
+
 }

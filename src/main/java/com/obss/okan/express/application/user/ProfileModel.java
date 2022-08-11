@@ -18,14 +18,14 @@ public class ProfileModel {
 
     @Value
     public static class ProfileModelNested {
+        String username;
         String name;
         String surname;
         String bio;
-        String image;
 
         public static ProfileModelNested fromProfile(Profile profile) {
-            return new ProfileModelNested(profile.getName(), profile.getSurname(),
-                    profile.getBio(), valueOf(profile.getImage()));
+            return new ProfileModelNested(profile.getUserName().toString(), profile.getName(), profile.getSurname(),
+                    profile.getBio());
 
         }
     }

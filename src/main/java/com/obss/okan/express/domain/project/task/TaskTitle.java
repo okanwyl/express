@@ -1,11 +1,13 @@
-package com.obss.okan.express.domain.project;
+package com.obss.okan.express.domain.project.task;
+
+import com.obss.okan.express.domain.project.ProjectTitle;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.Objects;
 
 @Embeddable
-public class ProjectTitle {
+public class TaskTitle {
 
     @Column(nullable = false, unique = true)
     private String title;
@@ -13,16 +15,17 @@ public class ProjectTitle {
     @Column(nullable = false, unique = true)
     private String slug;
 
-    public static ProjectTitle of(String title) {
-        return new ProjectTitle(title, slugFromTitle(title));
+
+    public static TaskTitle of(String title) {
+        return new TaskTitle(title, slugFromTitle(title));
     }
 
-    private ProjectTitle(String title, String slug) {
+    private TaskTitle(String title, String slug) {
         this.title = title;
         this.slug = slug;
     }
 
-    protected ProjectTitle() {
+    protected TaskTitle() {
     }
 
     public static String slugFromTitle(String title) {
@@ -45,7 +48,7 @@ public class ProjectTitle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProjectTitle that = (ProjectTitle) o;
+        TaskTitle that = (TaskTitle) o;
         return slug.equals(that.slug);
     }
 
@@ -53,4 +56,5 @@ public class ProjectTitle {
     public int hashCode() {
         return Objects.hash(slug);
     }
+
 }

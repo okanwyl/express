@@ -8,21 +8,18 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 
 public class ProjectUpdateRequest {
-    private final String descriptionToUpdate;
     private final String bodyToUpdate;
     private final ProjectTitle titleToUpdate;
     private final Date dateToUpdate;
 
 
     private ProjectUpdateRequest(ProjectUpdateRequestBuilder builder) {
-        this(builder.titleToUpdate, builder.descriptionToUpdate, builder.bodyToUpdate,
-                builder.dateToUpdate);
+        this(builder.titleToUpdate, builder.bodyToUpdate, builder.dateToUpdate);
     }
 
-    private ProjectUpdateRequest(ProjectTitle titleToUpdate, String descriptionToUpdate,
-            String bodyToUpdate, Date dateToUpdate) {
+    private ProjectUpdateRequest(ProjectTitle titleToUpdate,
+                                 String bodyToUpdate, Date dateToUpdate) {
         this.titleToUpdate = titleToUpdate;
-        this.descriptionToUpdate = descriptionToUpdate;
         this.bodyToUpdate = bodyToUpdate;
         this.dateToUpdate = dateToUpdate;
     }
@@ -35,9 +32,6 @@ public class ProjectUpdateRequest {
         return ofNullable(titleToUpdate);
     }
 
-    Optional<String> getDescriptionToUpdate() {
-        return ofNullable(descriptionToUpdate);
-    }
 
     Optional<String> getBodyToUpdate() {
         return ofNullable(bodyToUpdate);
@@ -49,7 +43,6 @@ public class ProjectUpdateRequest {
 
     public static class ProjectUpdateRequestBuilder {
         private ProjectTitle titleToUpdate;
-        private String descriptionToUpdate;
         private String bodyToUpdate;
         private Date dateToUpdate;
 
@@ -58,10 +51,6 @@ public class ProjectUpdateRequest {
             return this;
         }
 
-        public ProjectUpdateRequestBuilder descriptionToUpdate(String descriptionToUpdate) {
-            this.descriptionToUpdate = descriptionToUpdate;
-            return this;
-        }
 
         public ProjectUpdateRequestBuilder bodyToUpdate(String bodyToUpdate) {
             this.bodyToUpdate = bodyToUpdate;

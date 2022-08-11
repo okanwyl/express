@@ -18,6 +18,6 @@ interface ProjectRepository extends Repository<Project, Long> {
 
     Optional<Project> findFirstByContentsTitleSlug(String slug);
 
-//    void deleteProjectByContentsTitleSlug(User user, String slug);
+    void deleteProjectByContentsTitleSlug(String slug);
 
 }
