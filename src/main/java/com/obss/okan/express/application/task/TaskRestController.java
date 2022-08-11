@@ -30,7 +30,7 @@ class TaskRestController {
         return TaskModel.fromTask(taskAdded);
     }
 
-    @GetMapping("/projects/{slug}/tasks")
+    @GetMapping("/projects/{slug}/board")
     public MultipleTaskModel getTasks(@AuthenticationPrincipal UserJWTPayload jwtPayload,
                                             @PathVariable String slug) {
         final var tasks = ofNullable(jwtPayload)

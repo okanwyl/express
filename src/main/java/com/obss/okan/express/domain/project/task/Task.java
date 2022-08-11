@@ -1,6 +1,8 @@
 package com.obss.okan.express.domain.project.task;
 
 import com.obss.okan.express.domain.project.Project;
+import com.obss.okan.express.domain.user.Profile;
+import com.obss.okan.express.domain.user.ProfileService;
 import com.obss.okan.express.domain.user.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -31,9 +33,9 @@ public class Task {
     @ManyToOne(fetch = EAGER)
     private User creator;
 
-//    @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
-//    @ManyToOne(fetch = EAGER)
-//    private User assignedToUser;
+    @JoinColumn(name = "assigned_id", referencedColumnName = "id", nullable = true)
+    @ManyToOne(fetch = EAGER)
+    private User assignedToUser;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -43,6 +45,9 @@ public class Task {
     @LastModifiedDate
     private Instant updatedAt;
 
+    @Column(name = "boardcolummn")
+    private String columnName;
+
     @Column(name = "body", nullable = false)
     private String body;
 
@@ -51,6 +56,8 @@ public class Task {
         this.creator = creator;
         this.title = title;
         this.body = body;
+        this.assignedToUser = null;
+        this.columnName = "Backlog";
     }
 
     protected Task() {
@@ -79,9 +86,20 @@ public class Task {
         return body;
     }
 
-//    public User getAssignedToUser() {
-//        return assignedToUser;
-//    }
+    public User getAssignedToUser() {
+        return assignedToUser;
+    }
+
+    public String getAssignedToUserEmail(){
+        if (assignedToUser != null){
+            return assignedToUser.getEmail().toString();
+        }
+        return "Nobody";
+    }
+
+    public String getColumnName(){
+        return columnName;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -99,10 +117,9 @@ public class Task {
         return Objects.hash(project, creator, createdAt, body);
     }
 
-//    @Override
-//    public String toString() {
-//        return title.getTitle() + "," +
-//                assignedToUser.toString() + ",";
-//    }
+    @Override
+    public String toString() {
+        return title.getTitle();
+    }
 
 }

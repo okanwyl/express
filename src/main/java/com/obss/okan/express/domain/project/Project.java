@@ -186,7 +186,7 @@ public class Project {
     }
 
 
-    private boolean checkUserAttendingStatus(long userId) {
+    public boolean checkUserAttendingStatus(long userId) {
         final var userToLook = userAdded.stream().filter(user -> user.getId().equals(userId)).findFirst();
         if (userToLook.isPresent()) {
             return true;
